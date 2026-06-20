@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parking Layout</title>
+    <title>Sơ Đồ Bãi Đỗ Xe</title>
     <style>
         * {
             margin: 0;
@@ -200,24 +200,24 @@
 </head>
 <body>
     <header>
-        <div class="logo">Smart Parking System</div>
+        <div class="logo">Hệ Thống Đỗ Xe Thông Minh</div>
         <div class="user-info">
             <span id="username"></span>
-            <button class="logout-btn" id="logoutBtn" onclick="logout()">Logout</button>
+            <button class="logout-btn" id="logoutBtn" onclick="logout()">Đăng Xuất</button>
         </div>
     </header>
 
     <div class="container">
         <div class="form-section">
-            <h2>Vehicle Details</h2>
+            <h2>Thông Tin Xe</h2>
             <form id="vehicleForm">
-                <input type="text" id="ownerName" placeholder="Owner Name" required>
-                <input type="text" id="vehicleName" placeholder="Vehicle Name" required>
-                <input type="text" id="vehicleNumber" placeholder="Vehicle Number" required>
+                <input type="text" id="ownerName" placeholder="Tên Chủ Xe" required>
+                <input type="text" id="vehicleName" placeholder="Tên Xe" required>
+                <input type="text" id="vehicleNumber" placeholder="Biển Số Xe" required>
                 <input type="datetime-local" id="entryTime" required>
                 <input type="datetime-local" id="exitTime" required>
-                <button type="button" id="parkBtn">Park</button>
-                <button type="button" id="unparkBtn" class="unpark-btn">Unpark</button>
+                <button type="button" id="parkBtn">Đỗ Xe</button>
+                <button type="button" id="unparkBtn" class="unpark-btn">Lấy Xe</button>
             </form>
         </div>
 
@@ -228,13 +228,13 @@
     <table id="parkedVehiclesTable">
         <thead>
             <tr>
-                <th>Block No</th>
-                <th>Owner Name</th>
-                <th>Vehicle Name</th>
-                <th>Vehicle Number</th>
-                <th>Entry Time</th>
-                <th>Exit Time</th>
-                <th>Action</th>
+                <th>Số Ô</th>
+                <th>Tên Chủ Xe</th>
+                <th>Tên Xe</th>
+                <th>Biển Số Xe</th>
+                <th>Thời Gian Vào</th>
+                <th>Thời Gian Ra</th>
+                <th>Hành Động</th>
             </tr>
         </thead>
         <tbody>
@@ -247,7 +247,7 @@
             const usernameDisplay = document.getElementById('username');
 
             if (username) {
-                usernameDisplay.textContent = `Hello, ${username}`;
+                usernameDisplay.textContent = `Xin chào, ${username}`;
             }
 
             const parkingLayout = document.getElementById('parkingLayout');
@@ -272,7 +272,7 @@
                 const selectedBlock = document.querySelector('.block.selected');
                 if (selectedBlock) {
                     if (selectedBlock.classList.contains('parked')) {
-                        alert('This block is already occupied.');
+                        alert('Ô này đã được sử dụng.');
                     } else {
                         selectedBlock.classList.add('parked');
                         selectedBlock.dataset.ownerName = document.getElementById('ownerName').value;
@@ -283,11 +283,11 @@
 
                         updateParkedVehiclesTable(selectedBlock);
 
-                        alert('Vehicle parked!');
+                        alert('Xe đã được đỗ!');
                         document.getElementById('vehicleForm').reset();
                     }
                 } else {
-                    alert('Please select a block to park.');
+                    alert('Vui lòng chọn một ô để đỗ xe.');
                 }
             });
 
@@ -296,7 +296,7 @@
                 if (selectedBlock && selectedBlock.classList.contains('parked')) {
                     unparkVehicle(selectedBlock);
                 } else {
-                    alert('No parked vehicle selected to unpark.');
+                    alert('Không có xe được chọn để lấy ra.');
                 }
             });
         };
@@ -328,7 +328,7 @@
 
             const actionCell = row.insertCell(6);
             const unparkButton = document.createElement('button');
-            unparkButton.textContent = 'Unpark';
+            unparkButton.textContent = 'Lấy Xe';
             unparkButton.classList.add('unpark-table-btn');
             unparkButton.onclick = function() {
                 const blockId = row.getAttribute('data-block-id');
@@ -355,7 +355,7 @@
                 }
             }
 
-            alert('Vehicle unparked!');
+            alert('Xe đã được lấy ra!');
         }
     </script>
 </body>
