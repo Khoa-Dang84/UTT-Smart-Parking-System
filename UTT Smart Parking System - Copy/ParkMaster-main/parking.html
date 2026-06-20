@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Select Parking Area</title>
+    <title>Chọn Khu Đỗ Xe</title>
     <style>
         * {
             margin: 0;
@@ -144,27 +144,27 @@
 </head>
 <body>
     <header>
-        <div class="logo">Smart Parking</div>
+        <div class="logo">Hệ Thống Đỗ Xe Thông Minh</div>
         <div class="user-info">
             <span id="username"></span>
-            <button class="login-btn" id="loginBtn" onclick="redirectToLogin()">Login</button>
-            <button class="logout-btn" id="logoutBtn" onclick="logout()" style="display:none;">Logout</button>
+            <button class="login-btn" id="loginBtn" onclick="redirectToLogin()">Đăng Nhập</button>
+            <button class="logout-btn" id="logoutBtn" onclick="logout()" style="display:none;">Đăng Xuất</button>
         </div>
     </header>
 
     <div class="hero">
         <div class="content">
-            <h1>Select Your Parking Area</h1>
-            <p>Choose your parking block from the available slots.</p>
+            <h1>Chọn Khu Đỗ Xe của Bạn</h1>
+            <p>Chọn khu đỗ xe từ các vị trí có sẵn.</p>
 
             <div class="parking-area-selection">
-                <h2>Choose Parking Blocks</h2>
-                <button onclick="openPopup()">Select Blocks</button>
+                <h2>Chọn Ô Đỗ Xe</h2>
+                <button onclick="openPopup()">Chọn Ô Xe</button>
             </div>
         
             <!-- Pop-up frame for parking block selection -->
             <div class="popup-frame" id="popupFrame">
-                <h3>Select Parking Blocks</h3>
+                <h3>Chọn Ô Đỗ Xe</h3>
                 <div class="parking-blocks" id="parkingBlocks">
                     <!-- Blocks will be added dynamically here -->
                 </div>
@@ -184,7 +184,7 @@
             const usernameDisplay = document.getElementById('username');
             
             if (username) {
-                usernameDisplay.textContent = `Hello, ${username}`;
+                usernameDisplay.textContent = `Xin chào, ${username}`;
                 loginBtn.style.display = 'none'; 
                 logoutBtn.style.display = 'inline-block';
             } else {
