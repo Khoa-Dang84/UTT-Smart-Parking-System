@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bản đồ bãi xe - Smart UTT Parking</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            background: #eef4ff;
+            color: #1f2937;
+        }
+
+        .header {
+            height: 86px;
+            background: #0d6efd;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 55px;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 27px;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .nav {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 16px;
+        }
+
+        .nav a:hover {
+            opacity: 0.75;
+        }
+
+        .logout-btn {
+            background: white;
+            color: #0d6efd;
+            border: none;
+            padding: 11px 20px;
+            border-radius: 999px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .container {
+            padding: 34px 55px 60px;
+        }
+
+        .page-title {
+            margin-bottom: 26px;
+        }
+
+        .page-title h1 {
+            color: #1e3a8a;
+            font-size: 38px;
+            margin-bottom: 8px;
+        }
+
+        .page-title p {
+            color: #64748b;
+            font-size: 17px;
+            line-height: 1.5;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 22px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 22px;
+            padding: 25px;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+            border: 1px solid #dbeafe;
+        }
+
+        .stat-card .icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            background: #e8f1ff;
+            color: #0d6efd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 27px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card h3 {
+            font-size: 15px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .number {
+            font-size: 34px;
+            font-weight: 900;
+            color: #1e3a8a;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 26px;
+            align-items: start;
+        }
+
+        .parking-panel,
+        .side-panel {
+            background: white;
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+            border: 1px solid #dbeafe;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .panel-header h2 {
+            color: #1e3a8a;
+            font-size: 25px;
+        }
+
+        .legend {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .legend span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-dot {
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .empty-color {
+            background: #22c55e;
+        }
+
+        .occupied-color {
+            background: #ef4444;
+        }
+
+        .reserved-color {
+            background: #f59e0b;
+        }
+
+        .violation-color {
+            background: #7c3aed;
+        }
+
+        .parking-map {
+            display: grid;
+            gap: 28px;
+        }
+
+        .area {
+            background: #f8fbff;
+            border-radius: 22px;
+            padding: 22px;
+            border: 1px solid #dbeafe;
+        }
+
+        .area-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .area-header h3 {
+            color: #1e3a8a;
+            font-size: 22px;
+        }
+
+        .area-status {
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 800;
+        }
+
+        .slots {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 12px;
+        }
+
+        .slot {
+            height: 78px;
+            border-radius: 16px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-weight: 900;
+            cursor: pointer;
+            transition: 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slot:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.18);
+        }
+
+        .slot small {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        .slot.empty {
+            background: linear-gradient(180deg, #22c55e, #16a34a);
+        }
+
+        .slot.occupied {
+            background: linear-gradient(180deg, #ef4444, #dc2626);
+        }
+
+        .slot.reserved {
+            background: linear-gradient(180deg, #f59e0b, #d97706);
+        }
+
+        .slot.violation {
+            background: linear-gradient(180deg, #8b5cf6, #7c3aed);
+        }
+
+        .slot::after {
+            content: "🅿️";
+            position: absolute;
+            right: 6px;
+            bottom: 3px;
+            font-size: 18px;
+            opacity: 0.25;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        .search-box label {
+            display: block;
+            color: #1e3a8a;
+            font-weight: 900;
+            margin-bottom: 10px;
+        }
+
+        .search-box input {
+            width: 100%;
+            height: 48px;
+            border: 1px solid #cbd5e1;
+            border-radius: 13px;
+            padding: 0 14px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .search-box input:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+        }
+
+        .button-group {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .action-btn {
+            height: 48px;
+            border: none;
+            border-radius: 13px;
+            font-weight: 900;
+            cursor: pointer;
+            font-size: 15px;
+            transition: 0.25s;
+        }
+
+        .blue-btn {
+            background: #0d6efd;
+            color: white;
+        }
+
+        .green-btn {
+            background: #22c55e;
+            color: white;
+        }
+
+        .orange-btn {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .gray-btn {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        .detail-card {
+            background: #f8fbff;
+            border-radius: 18px;
+            padding: 20px;
+            border: 1px solid #dbeafe;
+            margin-bottom: 24px;
+        }
+
+        .detail-card h3 {
+            color: #1e3a8a;
+            margin-bottom: 15px;
+            font-size: 21px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 11px 0;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 15px;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-row span {
+            color: #64748b;
+        }
+
+        .detail-row strong {
+            color: #1f2937;
+            text-align: right;
+        }
+
+        .history {
+            background: #f8fbff;
+            border-radius: 18px;
+            padding: 20px;
+            border: 1px solid #dbeafe;
+        }
+
+        .history h3 {
+            color: #1e3a8a;
+            margin-bottom: 15px;
+            font-size: 21px;
+        }
+
+        .history-item {
+            padding: 13px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-item strong {
+            color: #1e3a8a;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .history-item span {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 999px;
+            color: white;
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+        .badge-empty {
+            background: #22c55e;
+        }
+
+        .badge-occupied {
+            background: #ef4444;
+        }
+
+        .badge-reserved {
+            background: #f59e0b;
+        }
+
+        .badge-violation {
+            background: #7c3aed;
+        }
+
+        @media (max-width: 1150px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .slots {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+
+        @media (max-width: 760px) {
+            .header {
+                height: auto;
+                flex-direction: column;
+                padding: 20px;
+                gap: 16px;
+            }
+
+            .nav {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .container {
+                padding: 25px;
+            }
+
+            .page-title h1 {
+                font-size: 30px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .slots {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .slot {
+                height: 70px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="logo">Smart UTT Parking</div>
+
+        <nav class="nav">
+            <a href="index.html">🏠 Trang chủ</a>
+            <a href="student-home.html">👨‍🎓 Sinh viên</a>
+            <a href="admin-dashboard.html">📊 Admin</a>
+            <a href="parking.html">🅿️ Bãi xe</a>
+            <button class="logout-btn" onclick="logout()">Đăng xuất</button>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="page-title">
+            <h1>Bản đồ bãi xe thông minh</h1>
+            <p>
+                Theo dõi trạng thái các vị trí đỗ xe theo thời gian thực.
+                Sinh viên có thể xem khu vực còn trống, admin có thể kiểm tra mật độ và cảnh báo vi phạm.
+            </p>
+        </div>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="icon">🅿️</div>
+                <h3>Tổng số vị trí</h3>
+                <div class="number" id="totalSlots">0</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="icon">✅</div>
+                <h3>Vị trí còn trống</h3>
+                <div class="number" id="emptySlots">0</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="icon">🚗</div>
+                <h3>Xe đang gửi</h3>
+                <div class="number" id="occupiedSlots">0</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="icon">🚨</div>
+                <h3>Cảnh báo vi phạm</h3>
+                <div class="number" id="violationSlots">0</div>
+            </div>
+        </section>
+
+        <section class="main-layout">
+            <div class="parking-panel">
+                <div class="panel-header">
+                    <h2>Sơ đồ bãi xe UTT</h2>
+
+                    <div class="legend">
+                        <span><i class="legend-dot empty-color"></i> Trống</span>
+                        <span><i class="legend-dot occupied-color"></i> Có xe</span>
+                        <span><i class="legend-dot reserved-color"></i> Bảo trì</span>
+                        <span><i class="legend-dot violation-color"></i> Vi phạm</span>
+                    </div>
+                </div>
+
+                <div class="parking-map" id="parkingMap">
+                    <!-- JavaScript sẽ tự tạo các ô đỗ xe ở đây -->
+                </div>
+            </div>
+
+            <aside class="side-panel">
+                <div class="search-box">
+                    <label for="plateSearch">Tìm kiếm biển số</label>
+                    <input type="text" id="plateSearch" placeholder="Ví dụ: 29A1-12345" oninput="searchPlate()" />
+                </div>
+
+                <div class="button-group">
+                    <button class="action-btn blue-btn" onclick="findEmptySlot()">
+                        Tìm chỗ trống gần nhất
+                    </button>
+
+                    <button class="action-btn green-btn" onclick="simulateCarIn()">
+                        Giả lập xe vào bãi
+                    </button>
+
+                    <button class="action-btn orange-btn" onclick="simulateCarOut()">
+                        Giả lập xe ra bãi
+                    </button>
+
+                    <button class="action-btn gray-btn" onclick="resetParking()">
+                        Reset dữ liệu demo
+                    </button>
+                </div>
+
+                <div class="detail-card">
+                    <h3>Chi tiết vị trí</h3>
+
+                    <div class="detail-row">
+                        <span>Mã vị trí</span>
+                        <strong id="detailSlot">Chưa chọn</strong>
+                    </div>
+
+                    <div class="detail-row">
+                        <span>Khu vực</span>
+                        <strong id="detailArea">---</strong>
+                    </div>
+
+                    <div class="detail-row">
+                        <span>Trạng thái</span>
+                        <strong id="detailStatus">---</strong>
+                    </div>
+
+                    <div class="detail-row">
+                        <span>Biển số</span>
+                        <strong id="detailPlate">---</strong>
+                    </div>
+
+                    <div class="detail-row">
+                        <span>Thời gian vào</span>
+                        <strong id="detailTime">---</strong>
+                    </div>
+                </div>
+
+                <div class="history">
+                    <h3>Lịch sử gần đây</h3>
+
+                    <div id="historyList">
+                        <!-- JavaScript sẽ tự thêm lịch sử ở đây -->
+                    </div>
+                </div>
+            </aside>
+        </section>
+    </main>
+
+    <script>
+        const parkingData = [
+            {
+                area: "Khu A",
+                slots: [
+                    { id: "A01", status: "occupied", plate: "29A1-12345", time: "07:45" },
+                    { id: "A02", status: "occupied", plate: "30B2-88991", time: "08:02" },
+                    { id: "A03", status: "empty", plate: "", time: "" },
+                    { id: "A04", status: "empty", plate: "", time: "" },
+                    { id: "A05", status: "reserved", plate: "", time: "" },
+                    { id: "A06", status: "occupied", plate: "29C1-45678", time: "08:15" },
+                    { id: "A07", status: "violation", plate: "29X9-88888", time: "08:20" },
+                    { id: "A08", status: "empty", plate: "", time: "" }
+                ]
+            },
+            {
+                area: "Khu B",
+                slots: [
+                    { id: "B01", status: "empty", plate: "", time: "" },
+                    { id: "B02", status: "occupied", plate: "29B1-11111", time: "08:30" },
+                    { id: "B03", status: "empty", plate: "", time: "" },
+                    { id: "B04", status: "occupied", plate: "30A2-22222", time: "08:45" },
+                    { id: "B05", status: "empty", plate: "", time: "" },
+                    { id: "B06", status: "reserved", plate: "", time: "" },
+                    { id: "B07", status: "empty", plate: "", time: "" },
+                    { id: "B08", status: "occupied", plate: "29D1-33333", time: "09:00" }
+                ]
+            },
+            {
+                area: "Khu C",
+                slots: [
+                    { id: "C01", status: "empty", plate: "", time: "" },
+                    { id: "C02", status: "empty", plate: "", time: "" },
+                    { id: "C03", status: "occupied", plate: "29E1-44444", time: "09:12" },
+                    { id: "C04", status: "empty", plate: "", time: "" },
+                    { id: "C05", status: "violation", plate: "30X1-99999", time: "09:18" },
+                    { id: "C06", status: "empty", plate: "", time: "" },
+                    { id: "C07", status: "occupied", plate: "29F1-55555", time: "09:25" },
+                    { id: "C08", status: "empty", plate: "", time: "" }
+                ]
+            }
+        ];
+
+        const statusText = {
+            empty: "Còn trống",
+            occupied: "Đang có xe",
+            reserved: "Bảo trì",
+            violation: "Đỗ sai quy định"
+        };
+
+        const statusBadge = {
+            empty: "badge-empty",
+            occupied: "badge-occupied",
+            reserved: "badge-reserved",
+            violation: "badge-violation"
+        };
+
+        const historyItems = [
+            "Xe 29A1-12345 vào Khu A lúc 07:45",
+            "Xe 30B2-88991 vào Khu A lúc 08:02",
+            "Cảnh báo xe 29X9-88888 chưa đăng ký",
+            "Xe 29E1-44444 vào Khu C lúc 09:12"
+        ];
+
+        function renderParkingMap() {
+            const parkingMap = document.getElementById("parkingMap");
+            parkingMap.innerHTML = "";
+
+            parkingData.forEach(function (areaData) {
+                const areaElement = document.createElement("div");
+                areaElement.className = "area";
+
+                const emptyCount = areaData.slots.filter(slot => slot.status === "empty").length;
+                const totalCount = areaData.slots.length;
+
+                areaElement.innerHTML = `
+                    <div class="area-header">
+                        <h3>${areaData.area}</h3>
+                        <span class="area-status">Còn trống: ${emptyCount}/${totalCount}</span>
+                    </div>
+                    <div class="slots"></div>
+                `;
+
+                const slotsContainer = areaElement.querySelector(".slots");
+
+                areaData.slots.forEach(function (slot) {
+                    const slotElement = document.createElement("div");
+                    slotElement.className = `slot ${slot.status}`;
+                    slotElement.setAttribute("data-id", slot.id);
+                    slotElement.setAttribute("data-plate", slot.plate);
+
+                    slotElement.innerHTML = `
+                        ${slot.id}
+                        <small>${slot.status === "empty" ? "Trống" : slot.plate || statusText[slot.status]}</small>
+                    `;
+
+                    slotElement.addEventListener("click", function () {
+                        showSlotDetail(areaData.area, slot);
+                    });
+
+                    slotsContainer.appendChild(slotElement);
+                });
+
+                parkingMap.appendChild(areaElement);
+            });
+
+            updateStats();
+            renderHistory();
+        }
+
+        function updateStats() {
+            const allSlots = parkingData.flatMap(area => area.slots);
+
+            const total = allSlots.length;
+            const empty = allSlots.filter(slot => slot.status === "empty").length;
+            const occupied = allSlots.filter(slot => slot.status === "occupied").length;
+            const violation = allSlots.filter(slot => slot.status === "violation").length;
+
+            document.getElementById("totalSlots").textContent = total;
+            document.getElementById("emptySlots").textContent = empty;
+            document.getElementById("occupiedSlots").textContent = occupied;
+            document.getElementById("violationSlots").textContent = violation;
+        }
+
+        function showSlotDetail(area, slot) {
+            document.getElementById("detailSlot").textContent = slot.id;
+            document.getElementById("detailArea").textContent = area;
+            document.getElementById("detailStatus").innerHTML =
+                `<span class="badge ${statusBadge[slot.status]}">${statusText[slot.status]}</span>`;
+            document.getElementById("detailPlate").textContent = slot.plate || "---";
+            document.getElementById("detailTime").textContent = slot.time || "---";
+        }
+
+        function renderHistory() {
+            const historyList = document.getElementById("historyList");
+            historyList.innerHTML = "";
+
+            historyItems.slice(0, 6).forEach(function (item) {
+                const div = document.createElement("div");
+                div.className = "history-item";
+                div.innerHTML = `
+                    <strong>${item}</strong>
+                    <span>Cập nhật tự động từ hệ thống Smart Mapping</span>
+                `;
+
+                historyList.appendChild(div);
+            });
+        }
+
+        function findEmptySlot() {
+            for (const area of parkingData) {
+                const emptySlot = area.slots.find(slot => slot.status === "empty");
+
+                if (emptySlot) {
+                    showSlotDetail(area.area, emptySlot);
+                    alert(`Vị trí còn trống gần nhất: ${emptySlot.id} - ${area.area}`);
+                    return;
+                }
+            }
+
+            alert("Hiện tại bãi xe đã hết chỗ trống!");
+        }
+
+        function simulateCarIn() {
+            const plate = prompt("Nhập biển số xe vào bãi:", "29A1-" + Math.floor(10000 + Math.random() * 89999));
+
+            if (!plate) {
+                return;
+            }
+
+            for (const area of parkingData) {
+                const emptySlot = area.slots.find(slot => slot.status === "empty");
+
+                if (emptySlot) {
+                    const now = new Date();
+                    const time = now.getHours().toString().padStart(2, "0") + ":" +
+                        now.getMinutes().toString().padStart(2, "0");
+
+                    emptySlot.status = "occupied";
+                    emptySlot.plate = plate.toUpperCase();
+                    emptySlot.time = time;
+
+                    historyItems.unshift(`Xe ${plate.toUpperCase()} vào ${area.area} vị trí ${emptySlot.id} lúc ${time}`);
+
+                    renderParkingMap();
+                    showSlotDetail(area.area, emptySlot);
+
+                    alert(`Đã ghi nhận xe ${plate.toUpperCase()} vào vị trí ${emptySlot.id}`);
+                    return;
+                }
+            }
+
+            alert("Không còn vị trí trống để nhận xe!");
+        }
+
+        function simulateCarOut() {
+            const plate = prompt("Nhập biển số xe ra bãi:", "29A1-12345");
+
+            if (!plate) {
+                return;
+            }
+
+            const searchValue = plate.toUpperCase();
+
+            for (const area of parkingData) {
+                const slot = area.slots.find(slot => slot.plate.toUpperCase() === searchValue);
+
+                if (slot) {
+                    slot.status = "empty";
+                    slot.plate = "";
+                    slot.time = "";
+
+                    historyItems.unshift(`Xe ${searchValue} đã ra khỏi ${area.area}, vị trí ${slot.id}`);
+
+                    renderParkingMap();
+
+                    document.getElementById("detailSlot").textContent = slot.id;
+                    document.getElementById("detailArea").textContent = area.area;
+                    document.getElementById("detailStatus").innerHTML =
+                        `<span class="badge badge-empty">Còn trống</span>`;
+                    document.getElementById("detailPlate").textContent = "---";
+                    document.getElementById("detailTime").textContent = "---";
+
+                    alert(`Đã ghi nhận xe ${searchValue} ra khỏi bãi`);
+                    return;
+                }
+            }
+
+            alert("Không tìm thấy biển số này trong bãi xe!");
+        }
+
+        function searchPlate() {
+            const keyword = document.getElementById("plateSearch").value.trim().toUpperCase();
+
+            const slotElements = document.querySelectorAll(".slot");
+
+            slotElements.forEach(function (slotElement) {
+                slotElement.style.outline = "none";
+                slotElement.style.transform = "none";
+            });
+
+            if (!keyword) {
+                return;
+            }
+
+            for (const area of parkingData) {
+                const slot = area.slots.find(slot => slot.plate.toUpperCase().includes(keyword));
+
+                if (slot) {
+                    const slotElement = document.querySelector(`[data-id="${slot.id}"]`);
+                    slotElement.style.outline = "5px solid #0f172a";
+                    slotElement.style.transform = "scale(1.06)";
+                    showSlotDetail(area.area, slot);
+                    return;
+                }
+            }
+        }
+
+        function resetParking() {
+            const confirmReset = confirm("Bạn có chắc muốn tải lại dữ liệu demo không?");
+
+            if (confirmReset) {
+                location.reload();
+            }
+        }
+
+        function logout() {
+            const confirmLogout = confirm("Bạn có chắc chắn muốn đăng xuất không?");
+
+            if (confirmLogout) {
+                window.location.href = "login.html";
+            }
+        }
+
+        renderParkingMap();
+    </script>
+</body>
+
+</html>

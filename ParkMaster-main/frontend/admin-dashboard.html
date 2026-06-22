@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - Smart UTT Parking</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            background: #eef4ff;
+            color: #1f2937;
+        }
+
+        .layout {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+        }
+
+        .sidebar {
+            background: #173b83;
+            color: white;
+            padding: 26px 20px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 34px;
+        }
+
+        .brand-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: white;
+            color: #173b83;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 900;
+        }
+
+        .brand h2 {
+            font-size: 21px;
+            line-height: 1.2;
+        }
+
+        .brand p {
+            font-size: 13px;
+            color: #dbeafe;
+            margin-top: 4px;
+        }
+
+        .menu-title {
+            margin: 22px 0 12px 12px;
+            font-size: 13px;
+            color: #bfdbfe;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 0.7px;
+        }
+
+        .menu-item {
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: #dbeafe;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 15px;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            margin-bottom: 8px;
+            text-align: left;
+            transition: 0.25s;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background: #0d6efd;
+            color: white;
+            box-shadow: 0 8px 20px rgba(13, 110, 253, 0.26);
+        }
+
+        .logout-btn {
+            width: 100%;
+            margin-top: 25px;
+            border: none;
+            background: #ef4444;
+            color: white;
+            padding: 14px;
+            border-radius: 14px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .main {
+            min-width: 0;
+        }
+
+        .topbar {
+            height: 86px;
+            background: white;
+            padding: 0 34px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 22px;
+            box-shadow: 0 4px 18px rgba(15, 23, 42, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
+
+        .search-box {
+            width: 520px;
+            max-width: 55vw;
+            height: 48px;
+            border-radius: 999px;
+            background: #f1f5ff;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            border: 1px solid #dbeafe;
+        }
+
+        .search-box input {
+            flex: 1;
+            height: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            padding: 0 18px;
+            font-size: 15px;
+            color: #334155;
+        }
+
+        .search-box button {
+            width: 70px;
+            height: 100%;
+            border: none;
+            background: #0d6efd;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .admin-avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: #0d6efd;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+        }
+
+        .admin-profile strong {
+            color: #1e3a8a;
+            display: block;
+        }
+
+        .admin-profile span {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .content {
+            padding: 34px;
+        }
+
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        .page-title {
+            margin-bottom: 26px;
+        }
+
+        .page-title h1 {
+            color: #1e3a8a;
+            font-size: 34px;
+            margin-bottom: 8px;
+        }
+
+        .page-title p {
+            color: #64748b;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 22px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 22px;
+            padding: 24px;
+            border: 1px solid #dbeafe;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        .stat-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            background: #e8f1ff;
+            color: #0d6efd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card h3 {
+            color: #64748b;
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card strong {
+            color: #1e3a8a;
+            font-size: 33px;
+            font-weight: 900;
+        }
+
+        .grid-two {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 22px;
+            padding: 26px;
+            border: 1px solid #dbeafe;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+            overflow-x: auto;
+        }
+
+        .panel h2 {
+            color: #1e3a8a;
+            font-size: 23px;
+            margin-bottom: 18px;
+        }
+
+        .zone-cards {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .zone-card {
+            background: white;
+            border-radius: 22px;
+            padding: 22px;
+            border: 1px solid #dbeafe;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+            transition: 0.25s;
+        }
+
+        .zone-card:hover {
+            transform: translateY(-5px);
+            border-color: #0d6efd;
+        }
+
+        .zone-card h3 {
+            color: #1e3a8a;
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+
+        .zone-card p {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 14px;
+        }
+
+        .zone-mini {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .zone-mini div {
+            background: #f8fbff;
+            border-radius: 13px;
+            padding: 11px;
+        }
+
+        .zone-mini span {
+            color: #64748b;
+            display: block;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .zone-mini strong {
+            color: #1e3a8a;
+            font-size: 22px;
+        }
+
+        .bar-chart {
+            height: 300px;
+            display: flex;
+            align-items: end;
+            gap: 16px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-top: 25px;
+        }
+
+        .bar-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .bar {
+            width: 100%;
+            max-width: 54px;
+            min-height: 8px;
+            border-radius: 12px 12px 0 0;
+            background: linear-gradient(180deg, #0d6efd, #60a5fa);
+            position: relative;
+        }
+
+        .bar::before {
+            content: attr(data-value);
+            position: absolute;
+            top: -26px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #1e3a8a;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .bar-label {
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        th {
+            background: #f1f5ff;
+            color: #1e3a8a;
+            padding: 14px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #334155;
+            font-size: 14px;
+        }
+
+        tr:hover td {
+            background: #f8fbff;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 11px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 900;
+            color: white;
+        }
+
+        .badge-empty {
+            background: #22c55e;
+        }
+
+        .badge-used {
+            background: #ef4444;
+        }
+
+        .badge-car {
+            background: #2563eb;
+        }
+
+        .badge-warning {
+            background: #f59e0b;
+        }
+
+        .btn {
+            border: none;
+            padding: 9px 13px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 900;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+
+        .btn-blue {
+            background: #0d6efd;
+        }
+
+        .btn-green {
+            background: #22c55e;
+        }
+
+        .btn-orange {
+            background: #f59e0b;
+        }
+
+        .btn-red {
+            background: #ef4444;
+        }
+
+        .btn-dark {
+            background: #1e293b;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .form-grid input,
+        .form-grid select {
+            height: 48px;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 0 14px;
+            outline: none;
+            font-size: 15px;
+        }
+
+        .form-grid input:focus,
+        .form-grid select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+        }
+
+        .action-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .alert-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .alert-card {
+            background: white;
+            border-radius: 18px;
+            padding: 20px;
+            border-left: 7px solid #f59e0b;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .alert-card h3 {
+            color: #1e3a8a;
+            margin-bottom: 6px;
+        }
+
+        .alert-card p {
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 1200px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+            }
+
+            .stats-grid,
+            .zone-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .grid-two {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .topbar {
+                height: auto;
+                padding: 20px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                width: 100%;
+                max-width: none;
+            }
+
+            .content {
+                padding: 22px;
+            }
+
+            .stats-grid,
+            .zone-cards,
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">🅿️</div>
+                <div>
+                    <h2>Smart UTT Parking</h2>
+                    <p>Admin Dashboard</p>
+                </div>
+            </div>
+
+            <div class="menu-title">Quản trị</div>
+
+            <button class="menu-item active" data-target="overview">📊 Tổng quan</button>
+            <button class="menu-item" data-target="zones">🅿️ Theo khu</button>
+            <button class="menu-item" data-target="alerts">🚨 Cảnh báo</button>
+            <button class="menu-item" data-target="manual">⚙️ Quản lý nhanh</button>
+
+            <div class="menu-title">Liên kết</div>
+
+            <button class="menu-item" onclick="goToPage('parking_layout.html')">📍 Parking Slot</button>
+            <button class="menu-item" onclick="goToPage('parking.html')">🗺️ Bản đồ bãi xe</button>
+            <button class="menu-item" onclick="goToPage('student/student-home.html')">👨‍🎓 Trang sinh viên</button>
+
+            <button class="logout-btn" onclick="logout()">Đăng xuất</button>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div class="search-box">
+                    <input id="searchInput" type="text" placeholder="Tìm mã ô, biển số, mã sinh viên..." />
+                    <button onclick="searchData()">🔍</button>
+                </div>
+
+                <div class="admin-profile">
+                    <div class="admin-avatar">A</div>
+                    <div>
+                        <strong>Admin UTT</strong>
+                        <span>Dữ liệu đồng bộ từ parking_layout.html</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content">
+                <section class="page-section active" id="overview">
+                    <div class="page-title">
+                        <h1>Tổng quan bãi xe</h1>
+                        <p>
+                            Dashboard này đọc cùng dữ liệu với <strong>parking_layout.html</strong>,
+                            nên số xe, số ô trống, cảnh báo và tên khu sẽ đồng bộ.
+                        </p>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">🅿️</div>
+                            <h3>Tổng ô</h3>
+                            <strong id="statTotal">0</strong>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">✅</div>
+                            <h3>Còn trống</h3>
+                            <strong id="statEmpty">0</strong>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">🚗</div>
+                            <h3>Đang có xe</h3>
+                            <strong id="statUsed">0</strong>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">🚨</div>
+                            <h3>Cảnh báo</h3>
+                            <strong id="statWarning">0</strong>
+                        </div>
+                    </div>
+
+                    <div class="zone-cards" id="zoneCards"></div>
+
+                    <div class="grid-two">
+                        <div class="panel">
+                            <h2>Mật độ xe theo khu</h2>
+                            <div class="bar-chart" id="barChart"></div>
+                        </div>
+
+                        <div class="panel">
+                            <h2>Xe đang gửi gần đây</h2>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Mã ô</th>
+                                        <th>Khu vực</th>
+                                        <th>Biển số</th>
+                                        <th>Loại xe</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="page-section" id="zones">
+                    <div class="page-title">
+                        <h1>Thống kê theo khu</h1>
+                        <p>
+                            Tên khu được giữ đồng bộ với parking_layout.html:
+                            Khu gửi xe 1, Khu gửi xe 2, Khu gửi xe 3, Khu giáo viên, Khu ô tô.
+                        </p>
+                    </div>
+
+                    <div class="panel">
+                        <h2>Bảng trạng thái khu gửi xe</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Khu vực</th>
+                                    <th>Loại xe</th>
+                                    <th>Tổng ô</th>
+                                    <th>Còn trống</th>
+                                    <th>Đang có xe</th>
+                                    <th>Cảnh báo</th>
+                                    <th>Mật độ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="zoneTable"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="page-section" id="alerts">
+                    <div class="page-title">
+                        <h1>Cảnh báo từ bãi xe</h1>
+                        <p>Các ô đang có trạng thái cảnh báo sẽ hiển thị tại đây.</p>
+                    </div>
+
+                    <div class="alert-list" id="alertList"></div>
+                </section>
+
+                <section class="page-section" id="manual">
+                    <div class="page-title">
+                        <h1>Quản lý nhanh</h1>
+                        <p>
+                            Các thao tác này cũng ghi vào cùng dữ liệu localStorage với parking_layout.html.
+                        </p>
+                    </div>
+
+                    <div class="panel">
+                        <h2>Ghi nhận xe vào / xe ra</h2>
+
+                        <div class="form-grid">
+                            <select id="manualZone">
+                                <option value="student1">Khu gửi xe 1</option>
+                                <option value="bike2">Khu gửi xe 2</option>
+                                <option value="bike3">Khu gửi xe 3</option>
+                                <option value="teacher">Khu giáo viên</option>
+                                <option value="car">Khu ô tô</option>
+                            </select>
+
+                            <input id="manualPlate" type="text" placeholder="Biển số xe" />
+
+                            <input id="manualStudentCode" type="text" placeholder="Mã sinh viên" />
+
+                            <input id="manualStudentName" type="text" placeholder="Họ tên sinh viên" />
+                        </div>
+
+                        <div class="action-row">
+                            <button class="btn btn-blue" onclick="vehicleIn()">Ghi nhận xe vào</button>
+                            <button class="btn btn-orange" onclick="vehicleOut()">Ghi nhận xe ra</button>
+                            <button class="btn btn-green" onclick="syncData()">Đồng bộ lại</button>
+                            <button class="btn btn-dark" onclick="exportCSV()">Xuất CSV</button>
+                            <button class="btn btn-red" onclick="resetData()">Khởi tạo lại</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const STORAGE_KEY = "smart_utt_parking_slots_v1";
+
+        const zones = {
+            student1: {
+                name: "Khu gửi xe 1",
+                type: "Xe máy",
+                prefix: "SV1",
+                icon: "🏍️"
+            },
+            bike2: {
+                name: "Khu gửi xe 2",
+                type: "Xe máy",
+                prefix: "SV2",
+                icon: "🏍️"
+            },
+            bike3: {
+                name: "Khu gửi xe 3",
+                type: "Xe máy",
+                prefix: "SV3",
+                icon: "🏍️"
+            },
+            teacher: {
+                name: "Khu giáo viên",
+                type: "Xe máy",
+                prefix: "GV",
+                icon: "👨‍🏫"
+            },
+            car: {
+                name: "Khu ô tô",
+                type: "Ô tô",
+                prefix: "OTO",
+                icon: "🚗"
+            }
+        };
+
+        let slots = [];
+
+        function createInitialSlots() {
+            slots = [];
+
+            Object.keys(zones).forEach(function (zoneKey) {
+                for (let i = 1; i <= 20; i++) {
+                    let status = "empty";
+                    let plate = "";
+                    let studentCode = "";
+                    let studentName = "";
+                    let note = "";
+
+                    if (zoneKey === "car") {
+                        if (i <= 6) {
+                            status = "car";
+                            plate = "30A-" + String(12000 + i);
+                            note = "Ô tô đang gửi";
+                        }
+                    } else {
+                        if (i === 1 || i === 4 || i === 10) {
+                            status = "used";
+                            plate = "29X1-" + String(10000 + i);
+                            studentCode = "75DCTT21" + String(300 + i);
+                            studentName = "Sinh viên " + i;
+                        }
+
+                        if (i === 15) {
+                            status = "warning";
+                            plate = "29X9-88888";
+                            note = "Xe cần kiểm tra";
+                        }
+                    }
+
+                    slots.push({
+                        id: zones[zoneKey].prefix + String(i).padStart(3, "0"),
+                        zoneKey,
+                        zoneName: zones[zoneKey].name,
+                        type: zones[zoneKey].type,
+                        status,
+                        plate,
+                        studentCode,
+                        studentName,
+                        note
+                    });
+                }
+            });
+
+            saveData();
+        }
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(slots));
+        }
+
+        function loadData() {
+            const data = localStorage.getItem(STORAGE_KEY);
+
+            if (data) {
+                slots = JSON.parse(data);
+            } else {
+                createInitialSlots();
+            }
+        }
+
+        function getStatusText(status) {
+            if (status === "empty") return "Còn trống";
+            if (status === "used") return "Đang có xe máy";
+            if (status === "car") return "Đang có ô tô";
+            if (status === "warning") return "Cảnh báo";
+            return "---";
+        }
+
+        function getBadgeClass(status) {
+            if (status === "empty") return "badge-empty";
+            if (status === "used") return "badge-used";
+            if (status === "car") return "badge-car";
+            if (status === "warning") return "badge-warning";
+            return "badge-empty";
+        }
+
+        function getZoneSummary(zoneKey) {
+            const zoneSlots = slots.filter(slot => slot.zoneKey === zoneKey);
+            const empty = zoneSlots.filter(slot => slot.status === "empty").length;
+            const used = zoneSlots.filter(slot => slot.status === "used" || slot.status === "car").length;
+            const warning = zoneSlots.filter(slot => slot.status === "warning").length;
+            const total = zoneSlots.length;
+            const percent = total === 0 ? 0 : Math.round((used / total) * 100);
+
+            return {
+                total,
+                empty,
+                used,
+                warning,
+                percent
+            };
+        }
+
+        function renderStats() {
+            document.getElementById("statTotal").textContent = slots.length;
+            document.getElementById("statEmpty").textContent =
+                slots.filter(slot => slot.status === "empty").length;
+            document.getElementById("statUsed").textContent =
+                slots.filter(slot => slot.status === "used" || slot.status === "car").length;
+            document.getElementById("statWarning").textContent =
+                slots.filter(slot => slot.status === "warning").length;
+        }
+
+        function renderZoneCards() {
+            const zoneCards = document.getElementById("zoneCards");
+            zoneCards.innerHTML = "";
+
+            Object.keys(zones).forEach(function (zoneKey) {
+                const summary = getZoneSummary(zoneKey);
+                const card = document.createElement("div");
+
+                card.className = "zone-card";
+                card.innerHTML = `
+                    <h3>${zones[zoneKey].icon} ${zones[zoneKey].name}</h3>
+                    <p>${zones[zoneKey].type} - đồng bộ từ parking_layout.html</p>
+
+                    <div class="zone-mini">
+                        <div>
+                            <span>Còn trống</span>
+                            <strong>${summary.empty}</strong>
+                        </div>
+
+                        <div>
+                            <span>Có xe</span>
+                            <strong>${summary.used}</strong>
+                        </div>
+                    </div>
+                `;
+
+                zoneCards.appendChild(card);
+            });
+        }
+
+        function renderBarChart() {
+            const barChart = document.getElementById("barChart");
+            barChart.innerHTML = "";
+
+            Object.keys(zones).forEach(function (zoneKey) {
+                const summary = getZoneSummary(zoneKey);
+                const item = document.createElement("div");
+                item.className = "bar-item";
+
+                item.innerHTML = `
+                    <div class="bar" data-value="${summary.percent}%" style="height: ${Math.max(summary.percent, 6)}%;"></div>
+                    <div class="bar-label">${zones[zoneKey].name}</div>
+                `;
+
+                barChart.appendChild(item);
+            });
+        }
+
+        function renderRecentTable() {
+            const recentTable = document.getElementById("recentTable");
+            const activeSlots = slots
+                .filter(slot => slot.status === "used" || slot.status === "car" || slot.status === "warning")
+                .slice(0, 8);
+
+            recentTable.innerHTML = "";
+
+            if (activeSlots.length === 0) {
+                recentTable.innerHTML = `
+                    <tr>
+                        <td colspan="5">Chưa có xe nào trong bãi.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            activeSlots.forEach(function (slot) {
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+                    <td>${slot.id}</td>
+                    <td>${slot.zoneName}</td>
+                    <td>${slot.plate || "---"}</td>
+                    <td>${slot.type}</td>
+                    <td><span class="badge ${getBadgeClass(slot.status)}">${getStatusText(slot.status)}</span></td>
+                `;
+
+                recentTable.appendChild(tr);
+            });
+        }
+
+        function renderZoneTable() {
+            const zoneTable = document.getElementById("zoneTable");
+            zoneTable.innerHTML = "";
+
+            Object.keys(zones).forEach(function (zoneKey) {
+                const summary = getZoneSummary(zoneKey);
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+                    <td>${zones[zoneKey].name}</td>
+                    <td>${zones[zoneKey].type}</td>
+                    <td>${summary.total}</td>
+                    <td>${summary.empty}</td>
+                    <td>${summary.used}</td>
+                    <td>${summary.warning}</td>
+                    <td>${summary.percent}%</td>
+                `;
+
+                zoneTable.appendChild(tr);
+            });
+        }
+
+        function renderAlerts() {
+            const alertList = document.getElementById("alertList");
+            const warningSlots = slots.filter(slot => slot.status === "warning");
+
+            alertList.innerHTML = "";
+
+            if (warningSlots.length === 0) {
+                alertList.innerHTML = `
+                    <div class="alert-card">
+                        <div>
+                            <h3>Không có cảnh báo</h3>
+                            <p>Hiện tại không có ô nào đang ở trạng thái cảnh báo.</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            warningSlots.forEach(function (slot) {
+                const div = document.createElement("div");
+                div.className = "alert-card";
+
+                div.innerHTML = `
+                    <div>
+                        <h3>${slot.id} - ${slot.zoneName}</h3>
+                        <p>Biển số: <strong>${slot.plate || "---"}</strong>. Ghi chú: ${slot.note || "Cần admin kiểm tra."}</p>
+                    </div>
+
+                    <button class="btn btn-green" onclick="resolveAlert('${slot.id}')">Đã xử lý</button>
+                `;
+
+                alertList.appendChild(div);
+            });
+        }
+
+        function renderAll() {
+            renderStats();
+            renderZoneCards();
+            renderBarChart();
+            renderRecentTable();
+            renderZoneTable();
+            renderAlerts();
+        }
+
+        function switchSection(targetId, button) {
+            document.querySelectorAll(".menu-item").forEach(function (item) {
+                item.classList.remove("active");
+            });
+
+            if (button) {
+                button.classList.add("active");
+            }
+
+            document.querySelectorAll(".page-section").forEach(function (section) {
+                section.classList.remove("active");
+            });
+
+            document.getElementById(targetId).classList.add("active");
+        }
+
+        document.querySelectorAll(".menu-item[data-target]").forEach(function (button) {
+            button.addEventListener("click", function () {
+                switchSection(button.getAttribute("data-target"), button);
+            });
+        });
+
+        function searchData() {
+            const keyword = document.getElementById("searchInput").value.trim().toUpperCase();
+
+            if (!keyword) {
+                alert("Vui lòng nhập mã ô, biển số hoặc mã sinh viên!");
+                return;
+            }
+
+            const found = slots.find(function (slot) {
+                return slot.id.toUpperCase().includes(keyword) ||
+                    slot.plate.toUpperCase().includes(keyword) ||
+                    slot.studentCode.toUpperCase().includes(keyword) ||
+                    slot.studentName.toUpperCase().includes(keyword);
+            });
+
+            if (!found) {
+                alert("Không tìm thấy dữ liệu phù hợp!");
+                return;
+            }
+
+            alert(
+                "Tìm thấy:\n" +
+                "Mã ô: " + found.id + "\n" +
+                "Khu: " + found.zoneName + "\n" +
+                "Biển số: " + (found.plate || "---") + "\n" +
+                "Trạng thái: " + getStatusText(found.status)
+            );
+        }
+
+        function vehicleIn() {
+            const zoneKey = document.getElementById("manualZone").value;
+            const plate = document.getElementById("manualPlate").value.trim().toUpperCase();
+            const studentCode = document.getElementById("manualStudentCode").value.trim().toUpperCase();
+            const studentName = document.getElementById("manualStudentName").value.trim();
+
+            if (!plate) {
+                alert("Vui lòng nhập biển số xe!");
+                return;
+            }
+
+            const emptySlot = slots.find(function (slot) {
+                return slot.zoneKey === zoneKey && slot.status === "empty";
+            });
+
+            if (!emptySlot) {
+                alert("Khu này đã hết chỗ trống!");
+                return;
+            }
+
+            emptySlot.status = zoneKey === "car" ? "car" : "used";
+            emptySlot.plate = plate;
+            emptySlot.studentCode = studentCode;
+            emptySlot.studentName = studentName;
+            emptySlot.note = "Ghi nhận từ admin-dashboard.html";
+
+            saveData();
+            renderAll();
+
+            document.getElementById("manualPlate").value = "";
+            document.getElementById("manualStudentCode").value = "";
+            document.getElementById("manualStudentName").value = "";
+
+            alert("Đã ghi nhận xe " + plate + " vào ô " + emptySlot.id);
+        }
+
+        function vehicleOut() {
+            const plate = document.getElementById("manualPlate").value.trim().toUpperCase() ||
+                document.getElementById("searchInput").value.trim().toUpperCase();
+
+            if (!plate) {
+                alert("Vui lòng nhập biển số xe vào ô biển số hoặc ô tìm kiếm!");
+                return;
+            }
+
+            const found = slots.find(function (slot) {
+                return slot.plate.toUpperCase() === plate;
+            });
+
+            if (!found) {
+                alert("Không tìm thấy biển số này trong bãi!");
+                return;
+            }
+
+            const oldSlotId = found.id;
+
+            found.status = "empty";
+            found.plate = "";
+            found.studentCode = "";
+            found.studentName = "";
+            found.note = "Xe đã ra khỏi bãi";
+
+            saveData();
+            renderAll();
+
+            alert("Đã ghi nhận xe ra khỏi ô " + oldSlotId);
+        }
+
+        function resolveAlert(slotId) {
+            const slot = slots.find(function (item) {
+                return item.id === slotId;
+            });
+
+            if (!slot) {
+                alert("Không tìm thấy ô cảnh báo!");
+                return;
+            }
+
+            if (slot.plate) {
+                slot.status = slot.zoneKey === "car" ? "car" : "used";
+                slot.note = "Cảnh báo đã được admin xử lý";
+            } else {
+                slot.status = "empty";
+                slot.note = "";
+            }
+
+            saveData();
+            renderAll();
+
+            alert("Đã xử lý cảnh báo tại ô " + slotId);
+        }
+
+        function syncData() {
+            loadData();
+            renderAll();
+            alert("Đã đồng bộ lại dữ liệu từ parking_layout.html!");
+        }
+
+        function exportCSV() {
+            const header = [
+                "Mã ô",
+                "Khu vực",
+                "Loại xe",
+                "Trạng thái",
+                "Biển số",
+                "Mã sinh viên",
+                "Họ tên",
+                "Ghi chú"
+            ];
+
+            const rows = slots.map(function (slot) {
+                return [
+                    slot.id,
+                    slot.zoneName,
+                    slot.type,
+                    getStatusText(slot.status),
+                    slot.plate,
+                    slot.studentCode,
+                    slot.studentName,
+                    slot.note
+                ];
+            });
+
+            const csvContent = [header, ...rows]
+                .map(row => row.map(value => `"${String(value || "").replace(/"/g, '""')}"`).join(","))
+                .join("\n");
+
+            const blob = new Blob(["\uFEFF" + csvContent], {
+                type: "text/csv;charset=utf-8;"
+            });
+
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+
+            link.href = url;
+            link.download = "du-lieu-admin-bai-xe-utt.csv";
+            link.click();
+
+            URL.revokeObjectURL(url);
+        }
+
+        function resetData() {
+            const confirmReset = confirm("Bạn có chắc muốn reset dữ liệu không? Dữ liệu parking_layout.html cũng sẽ được khởi tạo lại.");
+
+            if (confirmReset) {
+                localStorage.removeItem(STORAGE_KEY);
+                createInitialSlots();
+                renderAll();
+                alert("Đã khởi tạo lại dữ liệu!");
+            }
+        }
+
+        function goToPage(page) {
+            window.location.href = page;
+        }
+
+        function logout() {
+            const confirmLogout = confirm("Bạn có chắc chắn muốn đăng xuất không?");
+
+            if (confirmLogout) {
+                window.location.href = "login_new.html";
+            }
+        }
+
+        loadData();
+        renderAll();
+    </script>
+    <script src="../assets/js/auth.js"></script>
+
+    <script>
+        if (typeof requireRole === "function") {
+            requireRole(["admin"]);
+        } else {
+            const currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+
+            if (!currentUser || currentUser.role !== "admin") {
+                window.location.href = "login_new.html";
+            }
+        }
+    </script>
+
+</body>
+
+</html>

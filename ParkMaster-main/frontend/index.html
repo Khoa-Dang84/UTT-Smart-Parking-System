@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart UTT Parking System - Hệ thống quản lý bãi xe thông minh</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: #f4f8ff;
+            color: #1f2937;
+        }
+
+        /* ================= HEADER ================= */
+        .header {
+            width: 100%;
+            height: 86px;
+            background: #0d6efd;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 55px;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.14);
+        }
+
+        .logo {
+            font-size: 27px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 700;
+            transition: 0.25s;
+        }
+
+        .nav a:hover {
+            opacity: 0.75;
+        }
+
+        .login-link {
+            background: white;
+            color: #0d6efd !important;
+            padding: 11px 22px;
+            border-radius: 28px;
+            font-weight: 800 !important;
+        }
+
+        .login-link:hover {
+            opacity: 1 !important;
+            background: #e9f2ff;
+        }
+
+        /* ================= HERO ================= */
+        .hero {
+            min-height: calc(100vh - 86px);
+            display: grid;
+            grid-template-columns: 1fr 1.15fr;
+            align-items: center;
+            gap: 35px;
+            padding: 55px 70px;
+            background:
+                radial-gradient(circle at top right, rgba(13, 110, 253, 0.12), transparent 35%),
+                linear-gradient(180deg, #f4f8ff 0%, #ffffff 100%);
+        }
+
+        .hero-content .tag {
+            display: inline-block;
+            background: #e6f0ff;
+            color: #0d6efd;
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-weight: 800;
+            margin-bottom: 22px;
+        }
+
+        .hero-content h1 {
+            font-size: 58px;
+            line-height: 1.2;
+            color: #0d6efd;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            margin-bottom: 24px;
+        }
+
+        .hero-content h1 span {
+            color: #1e3a8a;
+        }
+
+        .hero-content p {
+            font-size: 21px;
+            line-height: 1.6;
+            color: #475569;
+            max-width: 720px;
+            margin-bottom: 34px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .primary-btn,
+        .secondary-btn {
+            text-decoration: none;
+            padding: 16px 34px;
+            border-radius: 40px;
+            font-size: 17px;
+            font-weight: 800;
+            transition: 0.25s;
+            display: inline-block;
+        }
+
+        .primary-btn {
+            background: #0d6efd;
+            color: white;
+            box-shadow: 0 10px 24px rgba(13, 110, 253, 0.3);
+        }
+
+        .primary-btn:hover {
+            background: #075ed8;
+            transform: translateY(-2px);
+        }
+
+        .secondary-btn {
+            background: white;
+            color: #0d6efd;
+            border: 2px solid #0d6efd;
+        }
+
+        .secondary-btn:hover {
+            background: #e9f2ff;
+            transform: translateY(-2px);
+        }
+
+        .hero-image {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-image img {
+            width: 100%;
+            max-width: 720px;
+            object-fit: contain;
+            filter: drop-shadow(0 20px 35px rgba(15, 23, 42, 0.2));
+        }
+
+        /* ================= COMMON SECTION ================= */
+        .section {
+            padding: 80px 70px;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto 45px;
+        }
+
+        .section-header .small-title {
+            color: #0d6efd;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section-header h2 {
+            font-size: 40px;
+            color: #1e3a8a;
+            margin-bottom: 18px;
+        }
+
+        .section-header p {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #64748b;
+        }
+
+        /* ================= PROBLEM ================= */
+        .problem-section {
+            background: white;
+        }
+
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 26px;
+        }
+
+        .problem-card {
+            background: #f8fbff;
+            border: 1px solid #dbeafe;
+            border-radius: 22px;
+            padding: 32px;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.07);
+            transition: 0.25s;
+        }
+
+        .problem-card:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 16px 34px rgba(15, 23, 42, 0.12);
+        }
+
+        .icon-box {
+            width: 62px;
+            height: 62px;
+            border-radius: 18px;
+            background: #e6f0ff;
+            color: #0d6efd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 31px;
+            margin-bottom: 22px;
+        }
+
+        .problem-card h3 {
+            font-size: 23px;
+            color: #1e3a8a;
+            margin-bottom: 14px;
+        }
+
+        .problem-card p {
+            color: #64748b;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        /* ================= SOLUTION ================= */
+        .solution-section {
+            background: #f4f8ff;
+        }
+
+        .solution-layout {
+            display: grid;
+            grid-template-columns: 0.95fr 1.05fr;
+            gap: 38px;
+            align-items: center;
+        }
+
+        .solution-image {
+            background: white;
+            border-radius: 28px;
+            padding: 28px;
+            box-shadow: 0 14px 40px rgba(15, 23, 42, 0.1);
+        }
+
+        .solution-image img {
+            width: 100%;
+            display: block;
+            object-fit: contain;
+        }
+
+        .solution-list {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .solution-item {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            display: flex;
+            gap: 18px;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.07);
+            border-left: 6px solid #0d6efd;
+        }
+
+        .solution-number {
+            min-width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: #0d6efd;
+            color: white;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .solution-item h3 {
+            color: #1e3a8a;
+            font-size: 21px;
+            margin-bottom: 8px;
+        }
+
+        .solution-item p {
+            color: #64748b;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        /* ================= BENEFIT ================= */
+        .benefit-section {
+            background: white;
+        }
+
+        .benefit-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 26px;
+        }
+
+        .benefit-card {
+            background: linear-gradient(180deg, #ffffff, #f4f8ff);
+            border-radius: 22px;
+            padding: 34px;
+            text-align: center;
+            border: 1px solid #dbeafe;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.07);
+            transition: 0.25s;
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 16px 34px rgba(15, 23, 42, 0.12);
+        }
+
+        .benefit-card .icon-box {
+            margin: 0 auto 22px;
+        }
+
+        .benefit-card h3 {
+            color: #1e3a8a;
+            font-size: 23px;
+            margin-bottom: 14px;
+        }
+
+        .benefit-card p {
+            color: #64748b;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        /* ================= CTA ================= */
+        .cta {
+            padding: 80px 70px;
+            background: linear-gradient(135deg, #0d6efd, #1e3a8a);
+            color: white;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 40px;
+            margin-bottom: 18px;
+        }
+
+        .cta p {
+            font-size: 18px;
+            max-width: 850px;
+            margin: 0 auto 30px;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+
+        .cta a {
+            display: inline-block;
+            background: white;
+            color: #0d6efd;
+            text-decoration: none;
+            padding: 16px 36px;
+            border-radius: 40px;
+            font-size: 17px;
+            font-weight: 900;
+            transition: 0.25s;
+        }
+
+        .cta a:hover {
+            background: #e9f2ff;
+            transform: translateY(-2px);
+        }
+
+        /* ================= FOOTER ================= */
+        .footer {
+            background: #0f172a;
+            color: white;
+            padding: 30px 70px;
+            text-align: center;
+        }
+
+        .footer p {
+            color: #cbd5e1;
+        }
+
+        /* ================= RESPONSIVE ================= */
+        @media (max-width: 1100px) {
+
+            .hero,
+            .solution-layout {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero-content p {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+            }
+
+            .problem-grid,
+            .benefit-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .solution-item {
+                text-align: left;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .header {
+                height: auto;
+                padding: 20px;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .nav {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 14px;
+            }
+
+            .hero {
+                padding: 45px 25px;
+            }
+
+            .hero-content h1 {
+                font-size: 38px;
+            }
+
+            .hero-content p {
+                font-size: 17px;
+            }
+
+            .section,
+            .cta {
+                padding: 55px 25px;
+            }
+
+            .section-header h2,
+            .cta h2 {
+                font-size: 30px;
+            }
+
+            .problem-grid,
+            .benefit-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .solution-item {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="logo">Smart UTT Parking System</div>
+
+        <nav class="nav">
+            <a href="#home">🏠 Trang chủ</a>
+            <a href="#problem">⚠️ Vấn đề</a>
+            <a href="#solution">💡 Giải pháp</a>
+            <a href="#benefit">🎯 Lợi ích</a>
+            <a href="login_new.html" class="login-link">Đăng nhập</a>
+        </nav>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <span class="tag">Hệ thống gửi xe thông minh cho nhà trường</span>
+
+            <h1>
+                Smart UTT Parking System<br />
+                <span>Hệ thống quản lý bãi xe thông minh</span>
+            </h1>
+
+            <p>
+                Smart UTT Parking là giải pháp quản lý bãi xe thông minh dành cho trường UTT,
+                giúp tự động hóa quá trình gửi xe, giảm ùn tắc tại cổng, hỗ trợ sinh viên tìm
+                chỗ trống nhanh hơn và nâng cao an ninh trong khuôn viên trường.
+            </p>
+
+            <div class="hero-buttons">
+                <a href="#problem" class="primary-btn">Tìm hiểu dự án →</a>
+                <a href="login.html" class="secondary-btn">Đăng nhập hệ thống</a>
+            </div>
+        </div>
+
+        <div class="hero-image">
+            <img src="assets/SMART-Parking.png" alt="Smart UTT Parking" onerror="this.src='car.png'" />
+        </div>
+    </section>
+
+    <!-- PROBLEM -->
+    <section class="section problem-section" id="problem">
+        <div class="section-header">
+            <div class="small-title">Lý do chọn đề tài</div>
+            <h2>Vấn đề cần giải quyết</h2>
+            <p>
+                Bãi xe trường học thường gặp nhiều khó khăn trong giờ cao điểm.
+                Việc quản lý thủ công gây tốn thời gian, giảm hiệu quả vận hành
+                và tiềm ẩn nhiều rủi ro về an ninh.
+            </p>
+        </div>
+
+        <div class="problem-grid">
+            <div class="problem-card">
+                <div class="icon-box">🚦</div>
+                <h3>Ùn tắc tại cổng bãi xe</h3>
+                <p>
+                    Việc quẹt thẻ từ thủ công khiến quá trình xe ra/vào diễn ra chậm,
+                    đặc biệt vào giờ cao điểm đầu ca và cuối ca học. Điều này gây ùn ứ
+                    nghiêm trọng tại khu vực cổng bãi xe của trường.
+                </p>
+            </div>
+
+            <div class="problem-card">
+                <div class="icon-box">⏱️</div>
+                <h3>Lãng phí thời gian</h3>
+                <p>
+                    Sinh viên mất nhiều thời gian chạy lòng vòng để tìm vị trí đỗ xe
+                    còn trống do không có sơ đồ hướng dẫn hoặc hệ thống cập nhật số lượng
+                    chỗ trống theo thời gian thực.
+                </p>
+            </div>
+
+            <div class="problem-card">
+                <div class="icon-box">🔐</div>
+                <h3>Hạn chế về an ninh</h3>
+                <p>
+                    Thẻ từ có thể bị rơi mất, hư hỏng hoặc sử dụng nhầm. Khi lượng xe quá đông,
+                    bảo vệ khó đối chiếu thủ công giữa khuôn mặt, thẻ xe và biển số phương tiện.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SOLUTION -->
+    <section class="section solution-section" id="solution">
+        <div class="section-header">
+            <div class="small-title">Giải pháp công nghệ</div>
+            <h2>Smart UTT Parking hoạt động như thế nào?</h2>
+            <p>
+                Hệ thống ứng dụng camera, trí tuệ nhân tạo và nền tảng quản trị web
+                để hỗ trợ quản lý bãi xe tự động, hiện đại và minh bạch hơn.
+            </p>
+        </div>
+
+        <div class="solution-layout">
+            <div class="solution-image">
+                <img src="assets/student-parking.png" alt="Giải pháp Smart Parking" onerror="this.src='car.png'" />
+            </div>
+
+            <div class="solution-list">
+                <div class="solution-item">
+                    <div class="solution-number">1</div>
+                    <div>
+                        <h3>AI Check-in/out</h3>
+                        <p>
+                            Camera tại cổng ra/vào ghi nhận biển số xe. Hệ thống AI tự động
+                            nhận diện biển số, đối chiếu với cơ sở dữ liệu sinh viên và ghi nhận
+                            thời gian xe vào hoặc ra khỏi bãi.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="solution-item">
+                    <div class="solution-number">2</div>
+                    <div>
+                        <h3>Smart Mapping - Bản đồ chỗ trống thời gian thực</h3>
+                        <p>
+                            Camera trên cao quét toàn cảnh bãi xe, tự động nhận diện khu vực còn
+                            trống và cập nhật số lượng vị trí đỗ xe lên hệ thống để sinh viên dễ dàng
+                            tìm chỗ gửi xe.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="solution-item">
+                    <div class="solution-number">3</div>
+                    <div>
+                        <h3>Web Admin - Hệ thống quản trị</h3>
+                        <p>
+                            Admin có thể quản lý sinh viên, phương tiện, lượt gửi xe, giao dịch nạp tiền,
+                            đồng thời theo dõi biểu đồ nhiệt mật độ xe theo giờ và nhận cảnh báo khi có xe
+                            đỗ sai quy định.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BENEFIT -->
+    <section class="section benefit-section" id="benefit">
+        <div class="section-header">
+            <div class="small-title">Giá trị mang lại</div>
+            <h2>Lợi ích cho trường UTT</h2>
+            <p>
+                Dự án không chỉ giải quyết bài toán gửi xe, mà còn góp phần hiện đại hóa
+                cơ sở vật chất và hướng đến mô hình khuôn viên thông minh.
+            </p>
+        </div>
+
+        <div class="benefit-grid">
+            <div class="benefit-card">
+                <div class="icon-box">⚙️</div>
+                <h3>Về vận hành</h3>
+                <p>
+                    Giải quyết bài toán ùn tắc giao thông nội khu, giúp quá trình xe ra/vào
+                    bãi diễn ra nhanh chóng, phù hợp với định hướng và thế mạnh ngành Giao thông
+                    của UTT.
+                </p>
+            </div>
+
+            <div class="benefit-card">
+                <div class="icon-box">🏫</div>
+                <h3>Về cơ sở vật chất</h3>
+                <p>
+                    Hiện đại hóa hạ tầng nhà trường, từng bước xây dựng mô hình
+                    “Smart Campus” - khuôn viên thông minh, ứng dụng công nghệ vào quản lý
+                    và phục vụ sinh viên.
+                </p>
+            </div>
+
+            <div class="benefit-card">
+                <div class="icon-box">🛡️</div>
+                <h3>Về an ninh</h3>
+                <p>
+                    Nâng cao tính an toàn, giảm rủi ro mất trộm tài sản, hỗ trợ đối chiếu
+                    phương tiện nhanh chóng và tối ưu hiệu suất làm việc của đội ngũ bảo vệ.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+        <h2>Sẵn sàng trải nghiệm hệ thống gửi xe thông minh?</h2>
+        <p>
+            Sinh viên có thể đăng nhập để quản lý phương tiện, kiểm tra số dư,
+            nạp tiền, xem lịch sử gửi xe và theo dõi chỗ trống trong bãi xe.
+        </p>
+        <a href="login_new.html">Đăng nhập ngay →</a>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <p>© 2026 Smart UTT Parking - Hệ thống quản lý bãi xe thông minh cho nhà trường</p>
+    </footer>
+</body>
+
+</html>

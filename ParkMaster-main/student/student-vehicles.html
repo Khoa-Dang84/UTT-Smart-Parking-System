@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xe của tôi - Smart UTT Parking</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            background: #f3f7ff;
+            color: #1f2937;
+        }
+
+        .navbar {
+            width: 100%;
+            height: 90px;
+            background: #0d6efd;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 45px;
+            color: white;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 27px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .menu {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .menu a {
+            color: white;
+            text-decoration: none;
+            font-size: 17px;
+            font-weight: 700;
+            transition: 0.25s;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        .user-box {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: white;
+            color: #0d6efd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+        }
+
+        .logout-btn {
+            background: white;
+            color: #0d6efd;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 22px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .logout-btn:hover {
+            background: #e9f2ff;
+            transform: translateY(-1px);
+        }
+
+        .container {
+            padding: 45px 70px 70px;
+        }
+
+        .page-title {
+            margin-bottom: 28px;
+        }
+
+        .page-title h1 {
+            font-size: 40px;
+            color: #0d6efd;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .page-title p {
+            color: #3f4652;
+            font-size: 18px;
+            line-height: 1.5;
+        }
+
+        .overview-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 22px;
+            margin-bottom: 30px;
+        }
+
+        .overview-card {
+            background: white;
+            border-radius: 18px;
+            padding: 26px;
+            box-shadow: 0 8px 26px rgba(15, 23, 42, 0.08);
+            border: 1px solid #e5ecff;
+        }
+
+        .overview-card .icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 16px;
+            background: #e8f1ff;
+            color: #0d6efd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 27px;
+            margin-bottom: 16px;
+        }
+
+        .overview-card h3 {
+            font-size: 18px;
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+
+        .overview-card strong {
+            display: block;
+            font-size: 28px;
+            color: #0d6efd;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 0.9fr 1.3fr;
+            gap: 26px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 18px;
+            padding: 28px;
+            box-shadow: 0 8px 26px rgba(15, 23, 42, 0.08);
+            border: 1px solid #e5ecff;
+        }
+
+        .panel h2 {
+            color: #1e3a8a;
+            font-size: 25px;
+            margin-bottom: 20px;
+            font-weight: 800;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            height: 48px;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            padding: 0 15px;
+            outline: none;
+            font-size: 15px;
+            color: #1f2937;
+            background: #ffffff;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.12);
+        }
+
+        .form-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            border: none;
+            padding: 14px 18px;
+            border-radius: 40px;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: #0d6efd;
+            color: white;
+            box-shadow: 0 8px 20px rgba(13, 110, 253, 0.24);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #0d6efd;
+            border: 2px solid #0d6efd;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #f97316;
+            color: white;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 780px;
+        }
+
+        th {
+            background: #e8f1ff;
+            color: #1e3a8a;
+            padding: 14px;
+            text-align: left;
+            font-size: 15px;
+        }
+
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #374151;
+            font-size: 15px;
+        }
+
+        tr:hover td {
+            background: #f8fbff;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .badge-success {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .badge-primary {
+            background: #dbeafe;
+            color: #0d6efd;
+        }
+
+        .badge-warning {
+            background: #ffedd5;
+            color: #c2410c;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .action-buttons button {
+            padding: 8px 11px;
+            border-radius: 12px;
+            font-size: 13px;
+        }
+
+        .empty-box {
+            text-align: center;
+            padding: 36px;
+            color: #64748b;
+            background: #f8fbff;
+            border-radius: 16px;
+            border: 1px dashed #cbd5e1;
+        }
+
+        .message-box {
+            margin-top: 18px;
+            background: #eef6ff;
+            border-left: 5px solid #0d6efd;
+            border-radius: 14px;
+            padding: 16px;
+            color: #334155;
+            line-height: 1.5;
+            font-size: 15px;
+        }
+
+        .message-error {
+            background: #fff1f2;
+            border-left-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .message-success {
+            background: #f0fdf4;
+            border-left-color: #16a34a;
+            color: #166534;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 32px;
+            color: #64748b;
+            font-weight: 700;
+        }
+
+        @media (max-width: 1100px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .overview-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 750px) {
+            .navbar {
+                height: auto;
+                padding: 18px 20px;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .menu {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+            }
+
+            .container {
+                padding: 30px 25px 50px;
+            }
+
+            .page-title h1 {
+                font-size: 32px;
+            }
+
+            .overview-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="navbar">
+        <div class="logo">Smart Parking System</div>
+
+        <nav class="menu">
+            <a href="student-home.html">🏠 Trang chủ</a>
+            <a href="student-vehicles.html" class="active">🚗 Xe của tôi</a>
+            <a href="student-wallet.html">💰 Ví/Nạp tiền</a>
+            <a href="parking.html">🅿️ Bãi xe</a>
+            <a href="student-history.html">📜 Lịch sử</a>
+        </nav>
+
+        <div class="user-box">
+            <div class="avatar" id="studentAvatar">S</div>
+            <span id="studentName">Sinh viên</span>
+            <button class="logout-btn" onclick="logout()">Đăng xuất</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="page-title">
+            <h1>Xe của tôi</h1>
+            <p>
+                Sinh viên có thể đăng ký phương tiện cá nhân, chỉnh sửa thông tin xe,
+                đặt xe chính và quản lý biển số dùng để gửi xe tại trường.
+            </p>
+        </section>
+
+        <section class="overview-cards">
+            <div class="overview-card">
+                <div class="icon">🚗</div>
+                <h3>Tổng phương tiện</h3>
+                <strong id="totalVehicles">0 xe</strong>
+            </div>
+
+            <div class="overview-card">
+                <div class="icon">⭐</div>
+                <h3>Xe chính</h3>
+                <strong id="mainVehicleText">Chưa có</strong>
+            </div>
+
+            <div class="overview-card">
+                <div class="icon">✅</div>
+                <h3>Trạng thái</h3>
+                <strong id="verifyStatus">Chưa đăng ký</strong>
+            </div>
+        </section>
+
+        <section class="main-grid">
+            <div class="panel">
+                <h2 id="formTitle">Thêm phương tiện</h2>
+
+                <div class="form-group">
+                    <label for="plateInput">Biển số xe</label>
+                    <input id="plateInput" type="text" placeholder="Ví dụ: 29X1-12345" />
+                </div>
+
+                <div class="form-group">
+                    <label for="typeInput">Loại phương tiện</label>
+                    <select id="typeInput">
+                        <option value="Xe máy">Xe máy</option>
+                        <option value="Ô tô">Ô tô</option>
+                        <option value="Xe đạp điện">Xe đạp điện</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="brandInput">Tên xe / hãng xe</label>
+                    <input id="brandInput" type="text" placeholder="Ví dụ: Honda Vision, Yamaha Sirius..." />
+                </div>
+
+                <div class="form-group">
+                    <label for="colorInput">Màu xe</label>
+                    <input id="colorInput" type="text" placeholder="Ví dụ: Đen, Trắng, Đỏ..." />
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-primary" id="saveBtn" onclick="saveVehicle()">Thêm xe</button>
+                    <button class="btn btn-secondary" onclick="resetForm()">Làm mới</button>
+                </div>
+
+                <div class="message-box" id="messageBox">
+                    Dữ liệu phương tiện được lưu trực tiếp vào hệ thống quản lý bãi xe.
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>Danh sách phương tiện đã đăng ký</h2>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Biển số</th>
+                                <th>Loại xe</th>
+                                <th>Tên xe</th>
+                                <th>Màu xe</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="vehicleTable">
+                            <tr>
+                                <td colspan="6">
+                                    <div class="loading">Đang tải dữ liệu phương tiện...</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="assets/js/api.js"></script>
+
+    <script>
+        let editingVehicleId = null;
+        let vehiclesCache = [];
+
+        requireRole(["student"]);
+
+        function setMessage(message, type) {
+            const messageBox = document.getElementById("messageBox");
+            messageBox.textContent = message;
+
+            messageBox.className = "message-box";
+
+            if (type === "success") {
+                messageBox.classList.add("message-success");
+            }
+
+            if (type === "error") {
+                messageBox.classList.add("message-error");
+            }
+        }
+
+        function getStatusBadge(vehicle) {
+            if (vehicle.is_main === 1 || vehicle.is_main === true) {
+                return `<span class="badge badge-primary">Xe chính</span>`;
+            }
+
+            if (vehicle.status === "verified") {
+                return `<span class="badge badge-success">Đã xác thực</span>`;
+            }
+
+            if (vehicle.status === "pending") {
+                return `<span class="badge badge-warning">Chờ xác thực</span>`;
+            }
+
+            if (vehicle.status === "locked") {
+                return `<span class="badge badge-danger">Đã khóa</span>`;
+            }
+
+            return `<span class="badge badge-success">Đã xác thực</span>`;
+        }
+
+        function renderUser() {
+            const user = getCurrentUser();
+
+            if (!user) {
+                return;
+            }
+
+            const fullName = user.fullName || "Sinh viên";
+            const firstLetter = fullName.trim().charAt(0).toUpperCase();
+
+            document.getElementById("studentName").textContent = fullName;
+            document.getElementById("studentAvatar").textContent = firstLetter || "S";
+        }
+
+        function renderSummary() {
+            const mainVehicle = vehiclesCache.find(function (vehicle) {
+                return vehicle.is_main === 1 || vehicle.is_main === true;
+            });
+
+            document.getElementById("totalVehicles").textContent = vehiclesCache.length + " xe";
+            document.getElementById("mainVehicleText").textContent = mainVehicle ? mainVehicle.plate : "Chưa có";
+            document.getElementById("verifyStatus").textContent = vehiclesCache.length > 0 ? "Đã đăng ký" : "Chưa đăng ký";
+        }
+
+        function renderVehicles() {
+            const tbody = document.getElementById("vehicleTable");
+            tbody.innerHTML = "";
+
+            if (vehiclesCache.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-box">
+                                Bạn chưa đăng ký phương tiện nào. Hãy thêm xe ở form bên trái.
+                            </div>
+                        </td>
+                    </tr>
+                `;
+
+                renderSummary();
+                return;
+            }
+
+            vehiclesCache.forEach(function (vehicle) {
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+                    <td><strong>${vehicle.plate}</strong></td>
+                    <td>${vehicle.type}</td>
+                    <td>${vehicle.brand || "---"}</td>
+                    <td>${vehicle.color || "---"}</td>
+                    <td>${getStatusBadge(vehicle)}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-success" onclick="setMainVehicle(${vehicle.id})">Xe chính</button>
+                            <button class="btn btn-warning" onclick="editVehicle(${vehicle.id})">Sửa</button>
+                            <button class="btn btn-danger" onclick="deleteVehicle(${vehicle.id})">Xóa</button>
+                        </div>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+
+            renderSummary();
+        }
+
+        async function loadVehicles() {
+            try {
+                const data = await SmartParkingAPI.listVehicles();
+                vehiclesCache = data.vehicles || [];
+                renderVehicles();
+            } catch (error) {
+                document.getElementById("vehicleTable").innerHTML = `
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-box">
+                                Không tải được dữ liệu phương tiện. Vui lòng kiểm tra kết nối máy chủ.
+                            </div>
+                        </td>
+                    </tr>
+                `;
+
+                setMessage(error.message, "error");
+            }
+        }
+
+        function normalizePlate(plate) {
+            return plate.trim().toUpperCase().replace(/\s+/g, "");
+        }
+
+        async function saveVehicle() {
+            const plate = normalizePlate(document.getElementById("plateInput").value);
+            const type = document.getElementById("typeInput").value;
+            const brand = document.getElementById("brandInput").value.trim();
+            const color = document.getElementById("colorInput").value.trim();
+
+            if (!plate) {
+                setMessage("Vui lòng nhập biển số xe.", "error");
+                return;
+            }
+
+            if (plate.length < 6) {
+                setMessage("Biển số xe không hợp lệ.", "error");
+                return;
+            }
+
+            const payload = {
+                plate: plate,
+                type: type,
+                brand: brand,
+                color: color
+            };
+
+            try {
+                document.getElementById("saveBtn").disabled = true;
+                document.getElementById("saveBtn").textContent = editingVehicleId ? "Đang cập nhật..." : "Đang thêm...";
+
+                if (editingVehicleId) {
+                    await SmartParkingAPI.updateVehicle(editingVehicleId, payload);
+                    setMessage("Đã cập nhật thông tin phương tiện.", "success");
+                } else {
+                    await SmartParkingAPI.createVehicle(payload);
+                    setMessage("Đã đăng ký phương tiện.", "success");
+                }
+
+                resetForm();
+                await loadVehicles();
+            } catch (error) {
+                setMessage(error.message, "error");
+            } finally {
+                document.getElementById("saveBtn").disabled = false;
+                document.getElementById("saveBtn").textContent = editingVehicleId ? "Cập nhật" : "Thêm xe";
+            }
+        }
+
+        function editVehicle(vehicleId) {
+            const vehicle = vehiclesCache.find(function (item) {
+                return item.id === vehicleId;
+            });
+
+            if (!vehicle) {
+                setMessage("Không tìm thấy phương tiện.", "error");
+                return;
+            }
+
+            editingVehicleId = vehicle.id;
+
+            document.getElementById("plateInput").value = vehicle.plate || "";
+            document.getElementById("typeInput").value = vehicle.type || "Xe máy";
+            document.getElementById("brandInput").value = vehicle.brand || "";
+            document.getElementById("colorInput").value = vehicle.color || "";
+
+            document.getElementById("formTitle").textContent = "Sửa thông tin phương tiện";
+            document.getElementById("saveBtn").textContent = "Cập nhật";
+
+            setMessage("Bạn đang chỉnh sửa phương tiện " + vehicle.plate + ".", "success");
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        }
+
+        async function deleteVehicle(vehicleId) {
+            const vehicle = vehiclesCache.find(function (item) {
+                return item.id === vehicleId;
+            });
+
+            if (!vehicle) {
+                setMessage("Không tìm thấy phương tiện.", "error");
+                return;
+            }
+
+            const confirmDelete = confirm("Bạn có chắc muốn xóa phương tiện " + vehicle.plate + " không?");
+
+            if (!confirmDelete) {
+                return;
+            }
+
+            try {
+                await SmartParkingAPI.deleteVehicle(vehicleId);
+                setMessage("Đã xóa phương tiện.", "success");
+                resetForm();
+                await loadVehicles();
+            } catch (error) {
+                setMessage(error.message, "error");
+            }
+        }
+
+        async function setMainVehicle(vehicleId) {
+            try {
+                await SmartParkingAPI.setMainVehicle(vehicleId);
+                setMessage("Đã đặt phương tiện chính.", "success");
+                await loadVehicles();
+            } catch (error) {
+                setMessage(error.message, "error");
+            }
+        }
+
+        function resetForm() {
+            editingVehicleId = null;
+
+            document.getElementById("plateInput").value = "";
+            document.getElementById("typeInput").value = "Xe máy";
+            document.getElementById("brandInput").value = "";
+            document.getElementById("colorInput").value = "";
+
+            document.getElementById("formTitle").textContent = "Thêm phương tiện";
+            document.getElementById("saveBtn").textContent = "Thêm xe";
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            renderUser();
+            loadVehicles();
+        });
+    </script>
+</body>
+
+</html>

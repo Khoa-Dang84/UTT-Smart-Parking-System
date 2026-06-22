@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sơ đồ bãi xe UTT Triều Khúc</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            background: #eef4ff;
+            color: #1f2937;
+        }
+
+        .header {
+            height: 82px;
+            background: #0d6efd;
+            color: white;
+            padding: 0 46px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.16);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: 900;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 800;
+        }
+
+        .login-btn {
+            background: white;
+            color: #0d6efd !important;
+            padding: 10px 20px;
+            border-radius: 999px;
+        }
+
+        .container {
+            padding: 34px 46px 60px;
+        }
+
+        .page-title {
+            margin-bottom: 24px;
+        }
+
+        .page-title h1 {
+            color: #1e3a8a;
+            font-size: 38px;
+            margin-bottom: 8px;
+        }
+
+        .page-title p {
+            color: #64748b;
+            font-size: 17px;
+            line-height: 1.6;
+            max-width: 1150px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 22px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 22px;
+            padding: 24px;
+            border: 1px solid #dbeafe;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        .stat-card .icon {
+            width: 54px;
+            height: 54px;
+            background: #e8f1ff;
+            color: #0d6efd;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 14px;
+        }
+
+        .stat-card h3 {
+            color: #64748b;
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card strong {
+            color: #1e3a8a;
+            font-size: 32px;
+            font-weight: 900;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 26px;
+            align-items: start;
+        }
+
+        .map-panel,
+        .side-panel {
+            background: white;
+            border-radius: 26px;
+            padding: 28px;
+            border: 1px solid #dbeafe;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .panel-header h2 {
+            color: #1e3a8a;
+            font-size: 25px;
+        }
+
+        .legend {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            color: #64748b;
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        .legend span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .dot-empty {
+            background: #22c55e;
+        }
+
+        .dot-used {
+            background: #ef4444;
+        }
+
+        .dot-car {
+            background: #2563eb;
+        }
+
+        .dot-warning {
+            background: #f59e0b;
+        }
+
+        .map-scroll {
+            width: 100%;
+            overflow-x: auto;
+            padding-bottom: 12px;
+        }
+
+        .campus-map {
+            width: 1080px;
+            height: 720px;
+            background: linear-gradient(135deg, #d9f0c0, #c7e9a2);
+            border: 10px solid #b7dd91;
+            border-radius: 32px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 0 5px rgba(255, 255, 255, 0.35);
+        }
+
+        .map-name {
+            position: absolute;
+            top: 18px;
+            left: 20px;
+            background: white;
+            color: #1e3a8a;
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-weight: 900;
+            z-index: 60;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.15);
+        }
+
+        .gate-area {
+            position: absolute;
+            left: 345px;
+            bottom: 20px;
+            width: 390px;
+            height: 118px;
+            background: rgba(255, 255, 255, 0.92);
+            border: 4px solid #bfdbfe;
+            border-radius: 24px;
+            z-index: 35;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.16);
+        }
+
+        .gate-title {
+            position: absolute;
+            left: 50%;
+            top: 8px;
+            transform: translateX(-50%);
+            background: #0d6efd;
+            color: white;
+            padding: 7px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .booth {
+            position: absolute;
+            width: 105px;
+            height: 54px;
+            background: #f8fafc;
+            border: 4px solid #1e3a8a;
+            border-radius: 15px;
+            color: #1e3a8a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            text-align: center;
+            top: 50px;
+            font-size: 12px;
+        }
+
+        .booth-b {
+            left: 50px;
+        }
+
+        .booth-a {
+            right: 50px;
+        }
+
+        .barrier {
+            position: absolute;
+            width: 78px;
+            height: 8px;
+            background: repeating-linear-gradient(90deg,
+                    #ef4444 0,
+                    #ef4444 18px,
+                    white 18px,
+                    white 36px);
+            border-radius: 999px;
+            top: 38px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
+            transform: rotate(-18deg);
+        }
+
+        .barrier-b {
+            left: 62px;
+        }
+
+        .barrier-a {
+            right: 62px;
+        }
+
+        .road {
+            position: absolute;
+            width: 92px;
+            height: 505px;
+            background: #4b5563;
+            border: 4px solid #334155;
+            border-radius: 28px;
+            z-index: 8;
+            overflow: hidden;
+        }
+
+        .road::before {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 18px;
+            height: calc(100% - 36px);
+            border-left: 5px dashed white;
+            transform: translateX(-50%);
+            opacity: 0.78;
+        }
+
+        .road::after {
+            content: "VÀO     RA";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 250px;
+            transform: translate(-50%, -50%) rotate(-90deg);
+            color: white;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 6px;
+            opacity: 0.9;
+            text-align: center;
+        }
+
+        .road-b {
+            left: 410px;
+            top: 95px;
+        }
+
+        .road-a {
+            left: 585px;
+            top: 95px;
+        }
+
+        .road-label {
+            position: absolute;
+            background: rgba(15, 23, 42, 0.88);
+            color: white;
+            padding: 7px 13px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 900;
+            z-index: 45;
+        }
+
+        .label-b {
+            left: 418px;
+            top: 60px;
+        }
+
+        .label-a {
+            left: 593px;
+            top: 60px;
+        }
+
+        .camera {
+            position: absolute;
+            width: 42px;
+            height: 42px;
+            background: #0d6efd;
+            color: white;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 21px;
+            z-index: 45;
+            box-shadow: 0 8px 16px rgba(13, 110, 253, 0.35);
+        }
+
+        .camera-b {
+            left: 436px;
+            bottom: 142px;
+        }
+
+        .camera-a {
+            left: 611px;
+            bottom: 142px;
+        }
+
+        .zone,
+        .facility {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            border: 4px solid #bfdbfe;
+            border-radius: 22px;
+            padding: 12px;
+            z-index: 18;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
+        }
+
+        .zone h3,
+        .facility h3 {
+            color: #1e3a8a;
+            font-size: 15px;
+            margin-bottom: 5px;
+        }
+
+        .zone-note {
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .zone-student1 {
+            left: 45px;
+            top: 405px;
+            width: 320px;
+            height: 130px;
+        }
+
+        .zone-car {
+            left: 45px;
+            top: 552px;
+            width: 320px;
+            height: 105px;
+        }
+
+        .zone-bike2 {
+            left: 515px;
+            top: 370px;
+            width: 55px;
+            height: 205px;
+        }
+
+        .zone-bike3 {
+            left: 690px;
+            top: 345px;
+            width: 160px;
+            height: 170px;
+        }
+
+        .zone-teacher {
+            left: 870px;
+            top: 250px;
+            width: 170px;
+            height: 155px;
+        }
+
+        .zone-ktx {
+            left: 870px;
+            top: 430px;
+            width: 170px;
+            height: 155px;
+        }
+
+        .pickleball {
+            left: 45px;
+            top: 250px;
+            width: 145px;
+            height: 118px;
+            background: #56c987;
+            border-color: #16a34a;
+            color: white;
+            overflow: hidden;
+        }
+
+        .pickleball::before,
+        .pickleball::after {
+            content: "";
+            position: absolute;
+            background: white;
+            opacity: 0.9;
+        }
+
+        .pickleball::before {
+            left: 50%;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            transform: translateX(-50%);
+        }
+
+        .pickleball::after {
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 4px;
+            transform: translateY(-50%);
+        }
+
+        .pickleball h3 {
+            position: relative;
+            z-index: 2;
+            display: inline-block;
+            background: white;
+            color: #166534;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+        }
+
+        .open-yard {
+            left: 208px;
+            top: 250px;
+            width: 157px;
+            height: 118px;
+            background:
+                linear-gradient(90deg, rgba(255, 255, 255, 0.45) 1px, transparent 1px),
+                linear-gradient(rgba(255, 255, 255, 0.45) 1px, transparent 1px),
+                #e8d7a5;
+            background-size: 28px 28px;
+            border-color: #c9b46b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #795b12;
+            font-weight: 900;
+            text-align: center;
+        }
+
+        .multi-building {
+            left: 90px;
+            top: 95px;
+            width: 245px;
+            height: 110px;
+            background: #fff7ed;
+            border-color: #f97316;
+            color: #9a3412;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-weight: 900;
+            font-size: 15px;
+        }
+
+        .slot-grid {
+            display: grid;
+            gap: 4px;
+        }
+
+        .bike-grid {
+            grid-template-columns: repeat(6, 1fr);
+        }
+
+        .bike-grid-small {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .car-grid {
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        .slot {
+            height: 17px;
+            border-radius: 5px;
+            color: white;
+            font-size: 8px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .slot:hover {
+            transform: scale(1.7);
+            box-shadow: 0 8px 15px rgba(15, 23, 42, 0.28);
+            z-index: 80;
+        }
+
+        .slot.empty {
+            background: #22c55e;
+        }
+
+        .slot.used {
+            background: #ef4444;
+        }
+
+        .slot.car-used {
+            background: #2563eb;
+        }
+
+        .slot.car-empty {
+            background: #60a5fa;
+        }
+
+        .slot.warning {
+            background: #f59e0b;
+        }
+
+        .tree {
+            position: absolute;
+            font-size: 30px;
+            z-index: 20;
+            filter: drop-shadow(0 5px 5px rgba(15, 23, 42, 0.16));
+        }
+
+        .tree.t1 {
+            left: 28px;
+            top: 32px;
+        }
+
+        .tree.t2 {
+            left: 365px;
+            top: 32px;
+        }
+
+        .tree.t3 {
+            left: 520px;
+            top: 42px;
+        }
+
+        .tree.t4 {
+            left: 760px;
+            top: 40px;
+        }
+
+        .tree.t5 {
+            right: 28px;
+            top: 36px;
+        }
+
+        .tree.t6 {
+            left: 375px;
+            top: 230px;
+        }
+
+        .tree.t7 {
+            left: 515px;
+            top: 230px;
+        }
+
+        .tree.t8 {
+            left: 690px;
+            top: 230px;
+        }
+
+        .tree.t9 {
+            left: 780px;
+            top: 555px;
+        }
+
+        .tree.t10 {
+            right: 30px;
+            bottom: 70px;
+        }
+
+        .tree.t11 {
+            left: 30px;
+            bottom: 70px;
+        }
+
+        .tree.t12 {
+            left: 825px;
+            top: 105px;
+        }
+
+        .tree.t13 {
+            left: 825px;
+            top: 620px;
+        }
+
+        .bush {
+            position: absolute;
+            width: 70px;
+            height: 26px;
+            background: #4ade80;
+            border-radius: 999px;
+            z-index: 14;
+            box-shadow: inset 0 -6px 0 rgba(0, 0, 0, 0.08);
+        }
+
+        .bush.b1 {
+            left: 375px;
+            top: 650px;
+        }
+
+        .bush.b2 {
+            left: 520px;
+            top: 650px;
+        }
+
+        .bush.b3 {
+            left: 680px;
+            top: 650px;
+        }
+
+        .bush.b4 {
+            left: 745px;
+            top: 250px;
+        }
+
+        .bush.b5 {
+            left: 745px;
+            top: 540px;
+        }
+
+        .bush.b6 {
+            left: 860px;
+            top: 610px;
+        }
+
+        .arrow {
+            position: absolute;
+            color: white;
+            background: rgba(15, 23, 42, 0.82);
+            padding: 7px 12px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 900;
+            z-index: 45;
+        }
+
+        .arrow-bottom {
+            left: 468px;
+            bottom: 73px;
+        }
+
+        .side-panel {
+            position: sticky;
+            top: 106px;
+        }
+
+        .side-panel h2 {
+            color: #1e3a8a;
+            font-size: 24px;
+            margin-bottom: 18px;
+        }
+
+        .detail-box,
+        .control-box,
+        .note-box {
+            background: #f8fbff;
+            border: 1px solid #dbeafe;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 22px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-row span {
+            color: #64748b;
+        }
+
+        .detail-row strong {
+            text-align: right;
+            color: #1f2937;
+        }
+
+        .badge {
+            display: inline-block;
+            color: white;
+            padding: 6px 11px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+        .badge-empty {
+            background: #22c55e;
+        }
+
+        .badge-used {
+            background: #ef4444;
+        }
+
+        .badge-car {
+            background: #2563eb;
+        }
+
+        .badge-warning {
+            background: #f59e0b;
+        }
+
+        .control-box h3,
+        .note-box h3 {
+            color: #1e3a8a;
+            margin-bottom: 14px;
+            font-size: 20px;
+        }
+
+        .control-box input,
+        .control-box select {
+            width: 100%;
+            height: 46px;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 0 13px;
+            outline: none;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .btn {
+            width: 100%;
+            height: 46px;
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 900;
+            cursor: pointer;
+            margin-top: 6px;
+        }
+
+        .btn-blue {
+            background: #0d6efd;
+        }
+
+        .btn-green {
+            background: #22c55e;
+        }
+
+        .btn-red {
+            background: #ef4444;
+        }
+
+        .note {
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .note:last-child {
+            border-bottom: none;
+        }
+
+        .note strong {
+            display: block;
+            color: #1e3a8a;
+            margin-bottom: 5px;
+        }
+
+        .note p {
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.45;
+        }
+
+        @media (max-width: 1200px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .side-panel {
+                position: static;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .header {
+                height: auto;
+                padding: 18px;
+                flex-direction: column;
+                gap: 14px;
+            }
+
+            .nav {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .container {
+                padding: 24px;
+            }
+
+            .page-title h1 {
+                font-size: 30px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="logo">Smart UTT Parking</div>
+
+        <nav class="nav">
+            <a href="index.html">🏠 Trang chủ</a>
+            <a href="student-home.html">👨‍🎓 Sinh viên</a>
+            <a href="parking.html">🅿️ Bản đồ</a>
+            <a href="admin-dashboard.html">📊 Admin</a>
+            <a href="login.html" class="login-btn">Đăng nhập</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="page-title">
+            <h1>Sơ đồ bãi xe UTT cơ sở Hà Nội - Triều Khúc</h1>
+            <p>
+                Bản đồ mô phỏng khu gửi xe phía sau trường với 2 bốt bảo vệ tại cổng vào.
+                Bốt trái dẫn vào đường B, bốt phải dẫn vào đường A. Mỗi đường có 2 chiều ra/vào.
+                Các khu xe được thu nhỏ, mỗi khu khoảng 20–30 vị trí để bản đồ gọn và dễ nhìn hơn.
+            </p>
+        </section>
+
+        <section class="stats">
+            <div class="stat-card">
+                <div class="icon">🏍️</div>
+                <h3>Tổng chỗ xe máy</h3>
+                <strong id="totalBike">0</strong>
+            </div>
+
+            <div class="stat-card">
+                <div class="icon">🚗</div>
+                <h3>Tổng chỗ ô tô</h3>
+                <strong id="totalCar">0</strong>
+            </div>
+
+            <div class="stat-card">
+                <div class="icon">✅</div>
+                <h3>Còn trống</h3>
+                <strong id="emptySlots">0</strong>
+            </div>
+
+            <div class="stat-card">
+                <div class="icon">🚨</div>
+                <h3>Cảnh báo</h3>
+                <strong id="warningSlots">0</strong>
+            </div>
+        </section>
+
+        <section class="layout">
+            <div class="map-panel">
+                <div class="panel-header">
+                    <h2>Mặt bằng bãi xe từ góc nhìn trên cao</h2>
+
+                    <div class="legend">
+                        <span><i class="dot dot-empty"></i> Trống</span>
+                        <span><i class="dot dot-used"></i> Xe máy</span>
+                        <span><i class="dot dot-car"></i> Ô tô</span>
+                        <span><i class="dot dot-warning"></i> Cảnh báo</span>
+                    </div>
+                </div>
+
+                <div class="map-scroll">
+                    <div class="campus-map">
+                        <div class="map-name">UTT Triều Khúc - Khu gửi xe sau trường</div>
+
+                        <div class="tree t1">🌳</div>
+                        <div class="tree t2">🌳</div>
+                        <div class="tree t3">🌳</div>
+                        <div class="tree t4">🌳</div>
+                        <div class="tree t5">🌳</div>
+                        <div class="tree t6">🌳</div>
+                        <div class="tree t7">🌳</div>
+                        <div class="tree t8">🌳</div>
+                        <div class="tree t9">🌳</div>
+                        <div class="tree t10">🌳</div>
+                        <div class="tree t11">🌳</div>
+                        <div class="tree t12">🌳</div>
+                        <div class="tree t13">🌳</div>
+
+                        <div class="bush b1"></div>
+                        <div class="bush b2"></div>
+                        <div class="bush b3"></div>
+                        <div class="bush b4"></div>
+                        <div class="bush b5"></div>
+                        <div class="bush b6"></div>
+
+                        <div class="road road-b"></div>
+                        <div class="road road-a"></div>
+
+                        <div class="road-label label-b">Đường B</div>
+                        <div class="road-label label-a">Đường A</div>
+
+                        <div class="gate-area">
+                            <div class="gate-title">Cổng sau / 2 bốt bảo vệ</div>
+                            <div class="barrier barrier-b"></div>
+                            <div class="barrier barrier-a"></div>
+                            <div class="booth booth-b">BỐT TRÁI<br />ĐƯỜNG B</div>
+                            <div class="booth booth-a">BỐT PHẢI<br />ĐƯỜNG A</div>
+                        </div>
+
+                        <div class="camera camera-b">📷</div>
+                        <div class="camera camera-a">📷</div>
+
+                        <div class="arrow arrow-bottom">Cổng sau trường ↑</div>
+
+                        <section class="facility multi-building">
+                            TÒA NHÀ<br />ĐA NĂNG
+                        </section>
+
+                        <section class="facility pickleball">
+                            <h3>Sân Pickleball</h3>
+                        </section>
+
+                        <section class="facility open-yard">
+                            SÂN TRỐNG
+                        </section>
+
+                        <section class="zone zone-student1">
+                            <h3>Khu gửi xe sinh viên 1</h3>
+                            <div class="zone-note">Bên trái đường B - 24 xe máy</div>
+                            <div class="slot-grid bike-grid" id="student1Zone"></div>
+                        </section>
+
+                        <section class="zone zone-car">
+                            <h3>Khu gửi ô tô</h3>
+                            <div class="zone-note">Cạnh khu sinh viên 1 - 20 ô tô</div>
+                            <div class="slot-grid car-grid" id="carZone"></div>
+                        </section>
+
+                        <section class="zone zone-bike2">
+                            <h3>Khu gửi xe 2</h3>
+                            <div class="zone-note">Bên phải đường B - 24 xe máy</div>
+                            <div class="slot-grid bike-grid-small" id="bike2Zone"></div>
+                        </section>
+
+                        <section class="zone zone-bike3">
+                            <h3>Khu gửi xe 3</h3>
+                            <div class="zone-note">Bên trái đường A - 24 xe máy</div>
+                            <div class="slot-grid bike-grid-small" id="bike3Zone"></div>
+                        </section>
+
+                        <section class="zone zone-teacher">
+                            <h3>Khu giáo viên</h3>
+                            <div class="zone-note">Bên phải đường A - 24 xe máy</div>
+                            <div class="slot-grid bike-grid-small" id="teacherZone"></div>
+                        </section>
+
+                        <section class="zone zone-ktx">
+                            <h3>Khu SV KTX</h3>
+                            <div class="zone-note">Bên phải đường A - 24 xe máy</div>
+                            <div class="slot-grid bike-grid-small" id="ktxZone"></div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="side-panel">
+                <h2>Thông tin vị trí</h2>
+
+                <div class="detail-box">
+                    <div class="detail-row">
+                        <span>Mã ô</span>
+                        <strong id="detailId">Chưa chọn</strong>
+                    </div>
+
+                    <div class="detail-row">
+                        <span>Khu vực</span>
+                        <strong id="detailZone">---</strong>
+                    </div>
+
+                    <div class="detail-row">
+                        <span>Loại xe</span>
+                        <strong id="detailType">---</strong>
+                    </div>
+
+                    <div class="detail-row">
+                        <span>Trạng thái</span>
+                        <strong id="detailStatus">---</strong>
+                    </div>
+
+                    <div class="detail-row">
+                        <span>Biển số</span>
+                        <strong id="detailPlate">---</strong>
+                    </div>
+                </div>
+
+                <div class="control-box">
+                    <h3>Tìm kiếm nhanh</h3>
+
+                    <input type="text" id="searchInput" placeholder="Nhập mã ô hoặc biển số" />
+
+                    <button class="btn btn-blue" onclick="searchSlot()">Tìm kiếm</button>
+                    <button class="btn btn-green" onclick="findEmptyBike()">Tìm chỗ xe máy trống</button>
+                    <button class="btn btn-red" onclick="resetDemo()">Reset demo</button>
+                </div>
+
+                <div class="control-box">
+                    <h3>Giả lập xe vào bãi</h3>
+
+                    <input type="text" id="newPlate" placeholder="Nhập biển số xe máy" />
+
+                    <select id="targetZone">
+                        <option value="student1">Khu sinh viên 1</option>
+                        <option value="bike2">Khu xe 2</option>
+                        <option value="bike3">Khu xe 3</option>
+                        <option value="teacher">Khu giáo viên</option>
+                        <option value="ktx">Khu SV KTX</option>
+                    </select>
+
+                    <button class="btn btn-blue" onclick="simulateBikeIn()">Ghi nhận xe vào</button>
+                </div>
+
+                <div class="note-box">
+                    <h3>Ghi chú bố cục</h3>
+
+                    <div class="note">
+                        <strong>Đường A</strong>
+                        <p>Bắt đầu từ bốt phải. Bên trái là khu xe 3, bên phải là khu giáo viên và sinh viên KTX.</p>
+                    </div>
+
+                    <div class="note">
+                        <strong>Đường B</strong>
+                        <p>Bắt đầu từ bốt trái. Bên trái là khu sinh viên 1 và khu ô tô, bên phải là khu xe 2.</p>
+                    </div>
+
+                    <div class="note">
+                        <strong>Cây xanh</strong>
+                        <p>Đã thêm cây và bụi cây để bản đồ giống khuôn viên trường hơn, không bị quá khô như sơ đồ kỹ
+                            thuật.</p>
+                    </div>
+                </div>
+            </aside>
+        </section>
+    </main>
+
+    <script>
+        const zones = {
+            student1: {
+                name: "Khu gửi xe sinh viên 1",
+                type: "Xe máy",
+                container: "student1Zone",
+                total: 24,
+                prefix: "SV1"
+            },
+
+            bike2: {
+                name: "Khu gửi xe 2",
+                type: "Xe máy",
+                container: "bike2Zone",
+                total: 24,
+                prefix: "XM2"
+            },
+
+            bike3: {
+                name: "Khu gửi xe 3",
+                type: "Xe máy",
+                container: "bike3Zone",
+                total: 24,
+                prefix: "XM3"
+            },
+
+            teacher: {
+                name: "Khu gửi xe giáo viên",
+                type: "Xe máy",
+                container: "teacherZone",
+                total: 24,
+                prefix: "GV"
+            },
+
+            ktx: {
+                name: "Khu gửi xe sinh viên KTX",
+                type: "Xe máy",
+                container: "ktxZone",
+                total: 24,
+                prefix: "KTX"
+            },
+
+            car: {
+                name: "Khu gửi ô tô",
+                type: "Ô tô",
+                container: "carZone",
+                total: 20,
+                prefix: "OTO"
+            }
+        };
+
+        const statusText = {
+            empty: "Còn trống",
+            used: "Đang có xe máy",
+            carUsed: "Đang có ô tô",
+            warning: "Cảnh báo"
+        };
+
+        const badgeClass = {
+            empty: "badge-empty",
+            used: "badge-used",
+            carUsed: "badge-car",
+            warning: "badge-warning"
+        };
+
+        function createSlots() {
+            Object.keys(zones).forEach(function (zoneKey) {
+                const zone = zones[zoneKey];
+                zone.slots = [];
+
+                for (let i = 1; i <= zone.total; i++) {
+                    const id = zone.prefix + "-" + String(i).padStart(2, "0");
+                    let status = "empty";
+                    let plate = "";
+
+                    if (zoneKey === "car") {
+                        if (i <= 8) {
+                            status = "carUsed";
+                            plate = "30A-" + String(12000 + i);
+                        }
+                    } else {
+                        if (i <= 12) {
+                            status = "used";
+                            plate = "29X1-" + String(10000 + i);
+                        }
+
+                        if (i === 19) {
+                            status = "warning";
+                            plate = "29X9-88888";
+                        }
+                    }
+
+                    zone.slots.push({ id, status, plate });
+                }
+            });
+        }
+
+        function renderZones() {
+            Object.keys(zones).forEach(function (zoneKey) {
+                const zone = zones[zoneKey];
+                const container = document.getElementById(zone.container);
+
+                container.innerHTML = "";
+
+                zone.slots.forEach(function (slot) {
+                    const div = document.createElement("div");
+
+                    if (slot.status === "carUsed") {
+                        div.className = "slot car-used";
+                    } else if (slot.status === "empty" && zoneKey === "car") {
+                        div.className = "slot car-empty";
+                    } else {
+                        div.className = "slot " + slot.status;
+                    }
+
+                    div.textContent = slot.id.split("-")[1];
+                    div.dataset.id = slot.id;
+                    div.dataset.plate = slot.plate;
+
+                    div.onclick = function () {
+                        showDetail(zoneKey, slot);
+                    };
+
+                    container.appendChild(div);
+                });
+            });
+
+            updateStats();
+        }
+
+        function updateStats() {
+            const bikeSlots = Object.keys(zones)
+                .filter(key => key !== "car")
+                .flatMap(key => zones[key].slots);
+
+            const carSlots = zones.car.slots;
+            const allSlots = [...bikeSlots, ...carSlots];
+
+            document.getElementById("totalBike").textContent = bikeSlots.length;
+            document.getElementById("totalCar").textContent = carSlots.length;
+            document.getElementById("emptySlots").textContent =
+                allSlots.filter(slot => slot.status === "empty").length;
+            document.getElementById("warningSlots").textContent =
+                allSlots.filter(slot => slot.status === "warning").length;
+        }
+
+        function showDetail(zoneKey, slot) {
+            const zone = zones[zoneKey];
+
+            document.getElementById("detailId").textContent = slot.id;
+            document.getElementById("detailZone").textContent = zone.name;
+            document.getElementById("detailType").textContent = zone.type;
+            document.getElementById("detailStatus").innerHTML =
+                `<span class="badge ${badgeClass[slot.status]}">${statusText[slot.status]}</span>`;
+            document.getElementById("detailPlate").textContent = slot.plate || "---";
+        }
+
+        function clearHighlight() {
+            document.querySelectorAll(".slot").forEach(function (slot) {
+                slot.style.outline = "none";
+                slot.style.transform = "none";
+            });
+        }
+
+        function searchSlot() {
+            const keyword = document.getElementById("searchInput").value.trim().toUpperCase();
+
+            if (!keyword) {
+                alert("Vui lòng nhập mã ô hoặc biển số!");
+                return;
+            }
+
+            clearHighlight();
+
+            for (const zoneKey in zones) {
+                const found = zones[zoneKey].slots.find(function (slot) {
+                    return slot.id.toUpperCase() === keyword ||
+                        slot.plate.toUpperCase().includes(keyword);
+                });
+
+                if (found) {
+                    const element = document.querySelector(`[data-id="${found.id}"]`);
+
+                    element.style.outline = "4px solid #111827";
+                    element.style.transform = "scale(1.55)";
+
+                    showDetail(zoneKey, found);
+
+                    alert(`Đã tìm thấy ${found.id} tại ${zones[zoneKey].name}`);
+                    return;
+                }
+            }
+
+            alert("Không tìm thấy vị trí hoặc biển số này!");
+        }
+
+        function findEmptyBike() {
+            clearHighlight();
+
+            const priority = ["student1", "bike2", "bike3", "teacher", "ktx"];
+
+            for (const zoneKey of priority) {
+                const found = zones[zoneKey].slots.find(slot => slot.status === "empty");
+
+                if (found) {
+                    const element = document.querySelector(`[data-id="${found.id}"]`);
+
+                    element.style.outline = "4px solid #111827";
+                    element.style.transform = "scale(1.55)";
+
+                    showDetail(zoneKey, found);
+
+                    alert(`Chỗ xe máy trống gần nhất: ${found.id} - ${zones[zoneKey].name}`);
+                    return;
+                }
+            }
+
+            alert("Hiện tại không còn chỗ trống cho xe máy!");
+        }
+
+        function simulateBikeIn() {
+            const plate = document.getElementById("newPlate").value.trim().toUpperCase();
+            const zoneKey = document.getElementById("targetZone").value;
+
+            if (!plate) {
+                alert("Vui lòng nhập biển số xe!");
+                return;
+            }
+
+            const zone = zones[zoneKey];
+            const emptySlot = zone.slots.find(slot => slot.status === "empty");
+
+            if (!emptySlot) {
+                alert(`${zone.name} hiện đã đầy!`);
+                return;
+            }
+
+            emptySlot.status = "used";
+            emptySlot.plate = plate;
+
+            document.getElementById("newPlate").value = "";
+
+            renderZones();
+
+            const element = document.querySelector(`[data-id="${emptySlot.id}"]`);
+            element.style.outline = "4px solid #111827";
+            element.style.transform = "scale(1.55)";
+
+            showDetail(zoneKey, emptySlot);
+
+            alert(`Đã ghi nhận xe ${plate} vào ${emptySlot.id} - ${zone.name}`);
+        }
+
+        function resetDemo() {
+            const confirmReset = confirm("Bạn có chắc muốn reset dữ liệu demo không?");
+
+            if (confirmReset) {
+                createSlots();
+                renderZones();
+            }
+        }
+
+        createSlots();
+        renderZones();
+    </script>
+</body>
+
+</html>

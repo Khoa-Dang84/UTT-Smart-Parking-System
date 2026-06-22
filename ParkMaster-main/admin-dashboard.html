@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - Smart UTT Parking System</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            background: #eef4ff;
+            color: #1f2937;
+        }
+
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ================= SIDEBAR ================= */
+        .sidebar {
+            width: 285px;
+            background: #173b83;
+            color: white;
+            padding: 26px 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            overflow-y: auto;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 34px;
+        }
+
+        .brand-icon {
+            width: 48px;
+            height: 48px;
+            background: white;
+            color: #173b83;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            font-weight: 900;
+        }
+
+        .brand-text h2 {
+            font-size: 21px;
+            line-height: 1.2;
+        }
+
+        .brand-text p {
+            font-size: 13px;
+            opacity: 0.75;
+            margin-top: 4px;
+        }
+
+        .menu-title {
+            font-size: 13px;
+            text-transform: uppercase;
+            opacity: 0.65;
+            margin: 22px 0 12px 12px;
+            letter-spacing: 0.8px;
+        }
+
+        .menu-item {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: #dbeafe;
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 14px 15px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: left;
+            transition: 0.25s;
+            margin-bottom: 8px;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background: #0d6efd;
+            color: white;
+            box-shadow: 0 8px 20px rgba(13, 110, 253, 0.28);
+        }
+
+        .logout-side {
+            margin-top: 25px;
+            width: 100%;
+            border: none;
+            background: #ef4444;
+            color: white;
+            padding: 14px;
+            border-radius: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .logout-side:hover {
+            background: #dc2626;
+        }
+
+        /* ================= MAIN ================= */
+        .main {
+            flex: 1;
+            margin-left: 285px;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 88px;
+            background: white;
+            padding: 0 36px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 18px rgba(15, 23, 42, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .search-box {
+            width: 430px;
+            height: 46px;
+            background: #f1f5ff;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            padding: 0 18px;
+            gap: 10px;
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            background: transparent;
+            width: 100%;
+            font-size: 15px;
+            color: #334155;
+        }
+
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .admin-avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: #0d6efd;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+        }
+
+        .admin-profile strong {
+            display: block;
+            color: #1e3a8a;
+        }
+
+        .admin-profile span {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .content {
+            padding: 34px;
+        }
+
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        .page-title {
+            margin-bottom: 26px;
+        }
+
+        .page-title h1 {
+            color: #1e3a8a;
+            font-size: 34px;
+            margin-bottom: 8px;
+        }
+
+        .page-title p {
+            color: #64748b;
+            font-size: 16px;
+        }
+
+        /* ================= CARDS ================= */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 22px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 22px;
+            padding: 25px;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+            border: 1px solid #dbeafe;
+            transition: 0.25s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .stat-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            background: #e8f1ff;
+            color: #0d6efd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+        }
+
+        .stat-change {
+            font-size: 13px;
+            font-weight: 800;
+            color: #16a34a;
+            background: #dcfce7;
+            padding: 5px 9px;
+            border-radius: 999px;
+        }
+
+        .stat-card h3 {
+            color: #64748b;
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .number {
+            color: #1e3a8a;
+            font-size: 32px;
+            font-weight: 900;
+        }
+
+        /* ================= DASHBOARD GRID ================= */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.25fr 0.75fr;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 22px;
+            padding: 26px;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+            border: 1px solid #dbeafe;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .panel-header h2 {
+            color: #1e3a8a;
+            font-size: 23px;
+        }
+
+        .panel-header span {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        /* ================= BAR CHART ================= */
+        .bar-chart {
+            height: 285px;
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 13px;
+            padding-top: 20px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .bar-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .bar {
+            width: 100%;
+            max-width: 42px;
+            background: linear-gradient(180deg, #0d6efd, #60a5fa);
+            border-radius: 12px 12px 0 0;
+            position: relative;
+        }
+
+        .bar::before {
+            content: attr(data-value);
+            position: absolute;
+            top: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: 800;
+            color: #1e3a8a;
+        }
+
+        .bar-label {
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* ================= HEATMAP ================= */
+        .heatmap {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+
+        .heat-cell {
+            height: 58px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            color: white;
+            font-size: 15px;
+        }
+
+        .level-low {
+            background: #22c55e;
+        }
+
+        .level-medium {
+            background: #f59e0b;
+        }
+
+        .level-high {
+            background: #ef4444;
+        }
+
+        .heat-note {
+            margin-top: 18px;
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .dot {
+            display: inline-block;
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        /* ================= TABLE ================= */
+        .table-panel {
+            background: white;
+            border-radius: 22px;
+            padding: 26px;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+            border: 1px solid #dbeafe;
+            margin-bottom: 26px;
+            overflow-x: auto;
+        }
+
+        .table-panel h2 {
+            color: #1e3a8a;
+            font-size: 23px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 820px;
+        }
+
+        th {
+            background: #f1f5ff;
+            color: #1e3a8a;
+            text-align: left;
+            padding: 15px;
+            font-size: 15px;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #334155;
+            font-size: 15px;
+        }
+
+        tr:hover td {
+            background: #f8fbff;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 11px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .badge-success {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .badge-warning {
+            background: #ffedd5;
+            color: #c2410c;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .badge-blue {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .action-btn {
+            border: none;
+            padding: 8px 13px;
+            border-radius: 9px;
+            font-weight: 800;
+            cursor: pointer;
+            margin-right: 6px;
+            transition: 0.25s;
+        }
+
+        .btn-view {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .btn-approve {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            opacity: 0.85;
+        }
+
+        /* ================= ALERTS ================= */
+        .alert-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .alert-card {
+            background: white;
+            border-radius: 18px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            align-items: center;
+            border-left: 7px solid #ef4444;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        .alert-card.warning {
+            border-left-color: #f59e0b;
+        }
+
+        .alert-card.success {
+            border-left-color: #22c55e;
+        }
+
+        .alert-card h3 {
+            color: #1e3a8a;
+            margin-bottom: 6px;
+        }
+
+        .alert-card p {
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        /* ================= FORM ================= */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 180px;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .form-row input,
+        .form-row select {
+            height: 48px;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 0 14px;
+            outline: none;
+            font-size: 15px;
+        }
+
+        .form-row input:focus,
+        .form-row select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+        }
+
+        .add-btn {
+            border: none;
+            background: #0d6efd;
+            color: white;
+            border-radius: 12px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .add-btn:hover {
+            background: #075ed8;
+        }
+
+        /* ================= RESPONSIVE ================= */
+        @media (max-width: 1150px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 850px) {
+            .sidebar {
+                position: static;
+                width: 100%;
+                height: auto;
+            }
+
+            .admin-layout {
+                flex-direction: column;
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .topbar {
+                height: auto;
+                padding: 20px;
+                flex-direction: column;
+                gap: 18px;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .content {
+                padding: 22px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">🅿️</div>
+                <div class="brand-text">
+                    <h2>Smart UTT Parking System</h2>
+                    <p>Admin Dashboard</p>
+                </div>
+            </div>
+
+            <div class="menu-title">Quản trị hệ thống</div>
+
+            <button class="menu-item active" data-target="dashboard">
+                📊 Tổng quan
+            </button>
+
+            <button class="menu-item" data-target="students">
+                👨‍🎓 Quản lý sinh viên
+            </button>
+
+            <button class="menu-item" data-target="vehicles">
+                🚗 Quản lý phương tiện
+            </button>
+
+            <button class="menu-item" data-target="transactions">
+                💰 Giao dịch nạp tiền
+            </button>
+
+            <button class="menu-item" data-target="parking">
+                🅿️ Quản lý bãi xe
+            </button>
+
+            <button class="menu-item" data-target="alerts">
+                🚨 Cảnh báo vi phạm
+            </button>
+
+            <button class="logout-side" onclick="logout()">
+                Đăng xuất
+            </button>
+        </aside>
+
+        <!-- MAIN -->
+        <main class="main">
+            <!-- TOPBAR -->
+            <header class="topbar">
+                <div class="search-box">
+                    🔎
+                    <input type="text" placeholder="Tìm kiếm sinh viên, biển số, giao dịch..." />
+                </div>
+
+                <div class="admin-profile">
+                    <div class="admin-avatar">A</div>
+                    <div>
+                        <strong>Admin UTT</strong>
+                        <span>Quản trị viên hệ thống</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content">
+                <!-- DASHBOARD -->
+                <section class="page-section active" id="dashboard">
+                    <div class="page-title">
+                        <h1>Tổng quan hệ thống</h1>
+                        <p>Theo dõi tình trạng bãi xe, doanh thu, mật độ xe và cảnh báo trong ngày.</p>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-top">
+                                <div class="stat-icon">🚗</div>
+                                <span class="stat-change">+12%</span>
+                            </div>
+                            <h3>Xe đang trong bãi</h3>
+                            <div class="number">186</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-top">
+                                <div class="stat-icon">🅿️</div>
+                                <span class="stat-change">Còn trống</span>
+                            </div>
+                            <h3>Vị trí còn trống</h3>
+                            <div class="number">64</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-top">
+                                <div class="stat-icon">💰</div>
+                                <span class="stat-change">Hôm nay</span>
+                            </div>
+                            <h3>Doanh thu</h3>
+                            <div class="number">558K</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-top">
+                                <div class="stat-icon">🚨</div>
+                                <span class="stat-change" style="background:#fee2e2;color:#b91c1c;">Cần xử lý</span>
+                            </div>
+                            <h3>Cảnh báo</h3>
+                            <div class="number">05</div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="panel">
+                            <div class="panel-header">
+                                <h2>Mật độ xe theo giờ</h2>
+                                <span>Thống kê hôm nay</span>
+                            </div>
+
+                            <div class="bar-chart">
+                                <div class="bar-item">
+                                    <div class="bar" data-value="45" style="height: 45%;"></div>
+                                    <div class="bar-label">7h</div>
+                                </div>
+
+                                <div class="bar-item">
+                                    <div class="bar" data-value="90" style="height: 90%;"></div>
+                                    <div class="bar-label">8h</div>
+                                </div>
+
+                                <div class="bar-item">
+                                    <div class="bar" data-value="76" style="height: 76%;"></div>
+                                    <div class="bar-label">9h</div>
+                                </div>
+
+                                <div class="bar-item">
+                                    <div class="bar" data-value="58" style="height: 58%;"></div>
+                                    <div class="bar-label">10h</div>
+                                </div>
+
+                                <div class="bar-item">
+                                    <div class="bar" data-value="70" style="height: 70%;"></div>
+                                    <div class="bar-label">13h</div>
+                                </div>
+
+                                <div class="bar-item">
+                                    <div class="bar" data-value="96" style="height: 96%;"></div>
+                                    <div class="bar-label">17h</div>
+                                </div>
+
+                                <div class="bar-item">
+                                    <div class="bar" data-value="82" style="height: 82%;"></div>
+                                    <div class="bar-label">18h</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel">
+                            <div class="panel-header">
+                                <h2>Heatmap bãi xe</h2>
+                                <span>Mật độ theo khu</span>
+                            </div>
+
+                            <div class="heatmap">
+                                <div class="heat-cell level-high">A1</div>
+                                <div class="heat-cell level-high">A2</div>
+                                <div class="heat-cell level-medium">A3</div>
+                                <div class="heat-cell level-low">A4</div>
+                                <div class="heat-cell level-low">A5</div>
+
+                                <div class="heat-cell level-medium">B1</div>
+                                <div class="heat-cell level-high">B2</div>
+                                <div class="heat-cell level-medium">B3</div>
+                                <div class="heat-cell level-low">B4</div>
+                                <div class="heat-cell level-low">B5</div>
+
+                                <div class="heat-cell level-low">C1</div>
+                                <div class="heat-cell level-medium">C2</div>
+                                <div class="heat-cell level-medium">C3</div>
+                                <div class="heat-cell level-high">C4</div>
+                                <div class="heat-cell level-low">C5</div>
+                            </div>
+
+                            <div class="heat-note">
+                                <span><i class="dot level-low"></i> Thấp</span>
+                                <span><i class="dot level-medium"></i> Trung bình</span>
+                                <span><i class="dot level-high"></i> Cao</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-panel">
+                        <h2>Lượt gửi xe gần đây</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Mã SV</th>
+                                    <th>Họ tên</th>
+                                    <th>Biển số</th>
+                                    <th>Thời gian vào</th>
+                                    <th>Khu</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr>
+                                    <td>75DCTT21393</td>
+                                    <td>Nguyễn Đăng Khoa</td>
+                                    <td>29A1-12345</td>
+                                    <td>07:45</td>
+                                    <td>A2</td>
+                                    <td><span class="badge badge-success">Đang gửi</span></td>
+                                </tr>
+
+                                <tr>
+                                    <td>75DCTT21012</td>
+                                    <td>Trần Minh Anh</td>
+                                    <td>30B2-88991</td>
+                                    <td>08:02</td>
+                                    <td>B1</td>
+                                    <td><span class="badge badge-success">Đang gửi</span></td>
+                                </tr>
+
+                                <tr>
+                                    <td>75DCTT21444</td>
+                                    <td>Lê Hoàng Nam</td>
+                                    <td>29C1-45678</td>
+                                    <td>08:15</td>
+                                    <td>C4</td>
+                                    <td><span class="badge badge-warning">Chờ thanh toán</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- STUDENTS -->
+                <section class="page-section" id="students">
+                    <div class="page-title">
+                        <h1>Quản lý sinh viên</h1>
+                        <p>Danh sách tài khoản sinh viên sử dụng hệ thống gửi xe.</p>
+                    </div>
+
+                    <div class="table-panel">
+                        <div class="form-row">
+                            <input type="text" id="studentName" placeholder="Họ tên sinh viên" />
+                            <input type="text" id="studentCode" placeholder="Mã sinh viên" />
+                            <button class="add-btn" onclick="addStudent()">Thêm sinh viên</button>
+                        </div>
+
+                        <h2>Danh sách sinh viên</h2>
+
+                        <table id="studentTable">
+                            <thead>
+                                <tr>
+                                    <th>Mã SV</th>
+                                    <th>Họ tên</th>
+                                    <th>Email</th>
+                                    <th>Số dư ví</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr>
+                                    <td>75DCTT21393</td>
+                                    <td>Nguyễn Đăng Khoa</td>
+                                    <td>khoa@utt.edu.vn</td>
+                                    <td>120.000đ</td>
+                                    <td><span class="badge badge-success">Hoạt động</span></td>
+                                    <td>
+                                        <button class="action-btn btn-view">Xem</button>
+                                        <button class="action-btn btn-delete">Khóa</button>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>75DCTT21012</td>
+                                    <td>Trần Minh Anh</td>
+                                    <td>minhanh@utt.edu.vn</td>
+                                    <td>85.000đ</td>
+                                    <td><span class="badge badge-success">Hoạt động</span></td>
+                                    <td>
+                                        <button class="action-btn btn-view">Xem</button>
+                                        <button class="action-btn btn-delete">Khóa</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- VEHICLES -->
+                <section class="page-section" id="vehicles">
+                    <div class="page-title">
+                        <h1>Quản lý phương tiện</h1>
+                        <p>Quản lý xe máy, ô tô và biển số đã đăng ký trong hệ thống.</p>
+                    </div>
+
+                    <div class="table-panel">
+                        <h2>Danh sách phương tiện</h2>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Biển số</th>
+                                    <th>Chủ xe</th>
+                                    <th>Mã SV</th>
+                                    <th>Loại xe</th>
+                                    <th>Màu xe</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr>
+                                    <td>29A1-12345</td>
+                                    <td>Nguyễn Đăng Khoa</td>
+                                    <td>75DCTT21393</td>
+                                    <td>Xe máy</td>
+                                    <td>Đen</td>
+                                    <td><span class="badge badge-success">Đã xác thực</span></td>
+                                </tr>
+
+                                <tr>
+                                    <td>30B2-88991</td>
+                                    <td>Trần Minh Anh</td>
+                                    <td>75DCTT21012</td>
+                                    <td>Xe máy</td>
+                                    <td>Trắng</td>
+                                    <td><span class="badge badge-warning">Chờ duyệt</span></td>
+                                </tr>
+
+                                <tr>
+                                    <td>29C1-45678</td>
+                                    <td>Lê Hoàng Nam</td>
+                                    <td>75DCTT21444</td>
+                                    <td>Xe máy</td>
+                                    <td>Xanh</td>
+                                    <td><span class="badge badge-success">Đã xác thực</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- TRANSACTIONS -->
+                <section class="page-section" id="transactions">
+                    <div class="page-title">
+                        <h1>Giao dịch nạp tiền</h1>
+                        <p>Admin kiểm duyệt các yêu cầu nạp tiền vào ví gửi xe của sinh viên.</p>
+                    </div>
+
+                    <div class="table-panel">
+                        <h2>Danh sách giao dịch</h2>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Mã GD</th>
+                                    <th>Mã SV</th>
+                                    <th>Họ tên</th>
+                                    <th>Số tiền</th>
+                                    <th>Thời gian</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr>
+                                    <td>GD001</td>
+                                    <td>75DCTT21393</td>
+                                    <td>Nguyễn Đăng Khoa</td>
+                                    <td>50.000đ</td>
+                                    <td>Hôm nay 09:20</td>
+                                    <td><span class="badge badge-warning">Chờ duyệt</span></td>
+                                    <td>
+                                        <button class="action-btn btn-approve"
+                                            onclick="approveTransaction(this)">Duyệt</button>
+                                        <button class="action-btn btn-delete">Từ chối</button>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>GD002</td>
+                                    <td>75DCTT21012</td>
+                                    <td>Trần Minh Anh</td>
+                                    <td>100.000đ</td>
+                                    <td>Hôm qua 15:02</td>
+                                    <td><span class="badge badge-success">Thành công</span></td>
+                                    <td>
+                                        <button class="action-btn btn-view">Xem</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- PARKING -->
+                <section class="page-section" id="parking">
+                    <div class="page-title">
+                        <h1>Quản lý bãi xe</h1>
+                        <p>Theo dõi số lượng chỗ trống và trạng thái từng khu vực trong bãi xe.</p>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-top">
+                                <div class="stat-icon">A</div>
+                                <span class="stat-change">Đông</span>
+                            </div>
+                            <h3>Khu A</h3>
+                            <div class="number">12/80</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-top">
+                                <div class="stat-icon">B</div>
+                                <span class="stat-change">TB</span>
+                            </div>
+                            <h3>Khu B</h3>
+                            <div class="number">28/90</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-top">
+                                <div class="stat-icon">C</div>
+                                <span class="stat-change">Trống</span>
+                            </div>
+                            <h3>Khu C</h3>
+                            <div class="number">24/80</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-top">
+                                <div class="stat-icon">⚙️</div>
+                                <span class="stat-change">Online</span>
+                            </div>
+                            <h3>Camera hoạt động</h3>
+                            <div class="number">06</div>
+                        </div>
+                    </div>
+
+                    <div class="table-panel">
+                        <h2>Trạng thái khu vực</h2>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Khu vực</th>
+                                    <th>Tổng chỗ</th>
+                                    <th>Đang sử dụng</th>
+                                    <th>Còn trống</th>
+                                    <th>Mật độ</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr>
+                                    <td>Khu A</td>
+                                    <td>80</td>
+                                    <td>68</td>
+                                    <td>12</td>
+                                    <td>85%</td>
+                                    <td><span class="badge badge-danger">Quá tải</span></td>
+                                </tr>
+
+                                <tr>
+                                    <td>Khu B</td>
+                                    <td>90</td>
+                                    <td>62</td>
+                                    <td>28</td>
+                                    <td>69%</td>
+                                    <td><span class="badge badge-warning">Trung bình</span></td>
+                                </tr>
+
+                                <tr>
+                                    <td>Khu C</td>
+                                    <td>80</td>
+                                    <td>56</td>
+                                    <td>24</td>
+                                    <td>70%</td>
+                                    <td><span class="badge badge-warning">Trung bình</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ALERTS -->
+                <section class="page-section" id="alerts">
+                    <div class="page-title">
+                        <h1>Cảnh báo vi phạm</h1>
+                        <p>Danh sách các cảnh báo cần admin kiểm tra và xử lý.</p>
+                    </div>
+
+                    <div class="alert-list">
+                        <div class="alert-card">
+                            <div>
+                                <h3>Xe chưa đăng ký vào bãi</h3>
+                                <p>Biển số 29X9-88888 được camera phát hiện tại cổng vào lúc 08:12 nhưng không tồn tại
+                                    trong cơ sở dữ liệu.</p>
+                            </div>
+                            <button class="action-btn btn-approve" onclick="resolveAlert(this)">Đã xử lý</button>
+                        </div>
+
+                        <div class="alert-card warning">
+                            <div>
+                                <h3>Xe đỗ sai vị trí</h3>
+                                <p>Camera khu A2 phát hiện phương tiện đỗ ngoài vạch quy định, có nguy cơ gây cản trở
+                                    lối đi.</p>
+                            </div>
+                            <button class="action-btn btn-approve" onclick="resolveAlert(this)">Đã xử lý</button>
+                        </div>
+
+                        <div class="alert-card">
+                            <div>
+                                <h3>Tài khoản không đủ số dư</h3>
+                                <p>Sinh viên 75DCTT21444 có lượt gửi xe cần thanh toán nhưng số dư ví không đủ để trừ
+                                    phí.</p>
+                            </div>
+                            <button class="action-btn btn-approve" onclick="resolveAlert(this)">Đã xử lý</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const menuItems = document.querySelectorAll(".menu-item");
+        const sections = document.querySelectorAll(".page-section");
+
+        menuItems.forEach(function (item) {
+            item.addEventListener("click", function () {
+                const targetId = item.getAttribute("data-target");
+
+                menuItems.forEach(function (btn) {
+                    btn.classList.remove("active");
+                });
+
+                item.classList.add("active");
+
+                sections.forEach(function (section) {
+                    section.classList.remove("active");
+                });
+
+                document.getElementById(targetId).classList.add("active");
+            });
+        });
+
+        function logout() {
+            const confirmLogout = confirm("Bạn có chắc chắn muốn đăng xuất không?");
+
+            if (confirmLogout) {
+                window.location.href = "login.html";
+            }
+        }
+
+        function approveTransaction(button) {
+            const row = button.closest("tr");
+            const statusCell = row.querySelector("td:nth-child(6)");
+
+            statusCell.innerHTML = '<span class="badge badge-success">Thành công</span>';
+
+            button.parentElement.innerHTML = '<button class="action-btn btn-view">Xem</button>';
+
+            alert("Đã duyệt giao dịch nạp tiền!");
+        }
+
+        function resolveAlert(button) {
+            const alertCard = button.closest(".alert-card");
+
+            alertCard.classList.remove("warning");
+            alertCard.classList.add("success");
+
+            button.textContent = "Đã xử lý";
+            button.disabled = true;
+            button.style.opacity = "0.6";
+            button.style.cursor = "not-allowed";
+        }
+
+        function addStudent() {
+            const nameInput = document.getElementById("studentName");
+            const codeInput = document.getElementById("studentCode");
+
+            const name = nameInput.value.trim();
+            const code = codeInput.value.trim();
+
+            if (!name || !code) {
+                alert("Vui lòng nhập đầy đủ họ tên và mã sinh viên!");
+                return;
+            }
+
+            const tableBody = document.querySelector("#studentTable tbody");
+
+            const newRow = document.createElement("tr");
+
+            newRow.innerHTML = `
+                <td>${code}</td>
+                <td>${name}</td>
+                <td>${code.toLowerCase()}@utt.edu.vn</td>
+                <td>0đ</td>
+                <td><span class="badge badge-success">Hoạt động</span></td>
+                <td>
+                    <button class="action-btn btn-view">Xem</button>
+                    <button class="action-btn btn-delete">Khóa</button>
+                </td>
+            `;
+
+            tableBody.appendChild(newRow);
+
+            nameInput.value = "";
+            codeInput.value = "";
+
+            alert("Đã thêm sinh viên vào danh sách demo!");
+        }
+    </script>
+</body>
+
+</html>
