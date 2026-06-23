@@ -754,7 +754,868 @@ def frontend_fallback(filename):
         "message": f"Không tìm thấy đường dẫn: {filename}"
     }), 404
 
+# ================== STUDENT FEATURES ==================
 
+
+@app.route("/student-wallet.html")
+def student_wallet_shortcut_page():
+    return send_frontend_file(os.path.join("student", "student-wallet.html"))
+
+
+@app.route("/student-parking.html")
+def student_parking_shortcut_page():
+    return send_frontend_file(os.path.join("student", "student-parking.html"))
+
+
+@app.route("/student-history.html")
+def student_history_shortcut_page():
+    return send_frontend_file(os.path.join("student", "student-history.html"))
+
+
+def get_student_code_from_request():
+    data = request.get_json(silent=True) or {}
+
+    return (
+        request.args.get("student_code")
+        or request.args.get("studentCode")
+        or data.get("student_code")
+        or data.get("studentCode")
+        or ""
+    ).strip().upper()
+
+
+def get_student_user(student_code):
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT id, username, full_name, role, student_code, balance
+        FROM users
+        WHERE student_code = ? OR username = ?
+        LIMIT 1
+    """, (student_code, student_code))
+
+    user = cur.fetchone()
+    conn.close()
+
+    return dict(user) if user else None
+
+
+@app.route("/api/student/wallet", methods=["GET"])
+def api_student_wallet():
+    student_code = get_student_code_from_request()
+
+    if not student_code:
+        return jsonify({
+            "success": False,
+            "message": "Thiếu mã sinh viên"
+        }), 400
+
+    user = get_student_user(student_code)
+
+    if not user:
+        return jsonify({
+            "success": False,
+            "message": "Không tìm thấy tài khoản sinh viên"
+        }), 404
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT id, action, fee, plate, created_at
+        FROM parking_transactions
+        WHERE student_code = ? AND action = 'TOPUP'
+        ORDER BY created_at DESC
+        LIMIT 20
+    """, (student_code,))
+
+    topups = rows_to_dicts(cur.fetchall())
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "wallet": {
+            "studentCode": user.get("student_code") or user.get("username"),
+            "fullName": user.get("full_name"),
+            "balance": user.get("balance") or 0,
+            "topups": topups
+        }
+    })
+
+
+@app.route("/api/student/wallet/topup", methods=["POST"])
+def api_student_wallet_topup():
+    data = request.get_json(silent=True) or {}
+
+    student_code = get_student_code_from_request()
+    amount = int(data.get("amount") or 0)
+    method = (data.get("method") or "Nạp tiền tại quầy").strip()
+
+    if not student_code:
+        return jsonify({
+            "success": False,
+            "message": "Thiếu mã sinh viên"
+        }), 400
+
+    if amount < 10000:
+        return jsonify({
+            "success": False,
+            "message": "Số tiền nạp tối thiểu là 10.000đ"
+        }), 400
+
+    user = get_student_user(student_code)
+
+    if not user:
+        return jsonify({
+            "success": False,
+            "message": "Không tìm thấy tài khoản sinh viên"
+        }), 404
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE users
+        SET balance = COALESCE(balance, 0) + ?
+        WHERE student_code = ? OR username = ?
+    """, (amount, student_code, student_code))
+
+    cur.execute("""
+        INSERT INTO parking_transactions
+        (slot_code, zone_name, plate, student_code, student_name, action, fee)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (
+        "",
+        "Ví sinh viên",
+        method,
+        student_code,
+        user.get("full_name") or "",
+        "TOPUP",
+        amount
+    ))
+
+    conn.commit()
+
+    cur.execute("""
+        SELECT id, username, full_name, role, student_code, balance
+        FROM users
+        WHERE student_code = ? OR username = ?
+        LIMIT 1
+    """, (student_code, student_code))
+
+    updated_user = dict(cur.fetchone())
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "message": "Nạp tiền thành công",
+        "wallet": {
+            "studentCode": updated_user.get("student_code") or updated_user.get("username"),
+            "fullName": updated_user.get("full_name"),
+            "balance": updated_user.get("balance") or 0
+        }
+    })
+
+
+@app.route("/api/student/history", methods=["GET"])
+def api_student_history():
+    student_code = get_student_code_from_request()
+
+    if not student_code:
+        return jsonify({
+            "success": False,
+            "message": "Thiếu mã sinh viên"
+        }), 400
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT id, slot_code, zone_name, plate, student_code, student_name, action, fee, created_at
+        FROM parking_transactions
+        WHERE student_code = ?
+        ORDER BY created_at DESC
+        LIMIT 100
+    """, (student_code,))
+
+    rows = rows_to_dicts(cur.fetchall())
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "history": rows
+    })
+
+
+@app.route("/api/student/parking/zones", methods=["GET"])
+def api_student_parking_zones():
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            z.zone_key,
+            z.zone_name,
+            z.vehicle_type,
+            z.prefix,
+            COUNT(s.id) AS total_slots,
+            SUM(CASE WHEN s.status = 'empty' THEN 1 ELSE 0 END) AS empty_slots,
+            SUM(CASE WHEN s.status IN ('used', 'car') THEN 1 ELSE 0 END) AS used_slots,
+            SUM(CASE WHEN s.status = 'warning' THEN 1 ELSE 0 END) AS warning_slots
+        FROM parking_zones z
+        LEFT JOIN parking_slots s ON s.zone_key = z.zone_key
+        GROUP BY z.zone_key, z.zone_name, z.vehicle_type, z.prefix
+        ORDER BY z.id
+    """)
+
+    rows = rows_to_dicts(cur.fetchall())
+    conn.close()
+
+    zones_data = []
+
+    for item in rows:
+        total = item["total_slots"] or 0
+        empty = item["empty_slots"] or 0
+        used = item["used_slots"] or 0
+        warning = item["warning_slots"] or 0
+
+        zones_data.append({
+            "zoneKey": item["zone_key"],
+            "zoneName": item["zone_name"],
+            "vehicleType": item["vehicle_type"],
+            "prefix": item["prefix"],
+            "totalSlots": total,
+            "emptySlots": empty,
+            "usedSlots": used,
+            "warningSlots": warning,
+            "density": 0 if total == 0 else round((used / total) * 100)
+        })
+
+    return jsonify({
+        "success": True,
+        "zones": zones_data
+    })
+
+
+@app.route("/api/student/parking/checkin", methods=["POST"])
+def api_student_parking_checkin():
+    data = request.get_json(silent=True) or {}
+
+    student_code = get_student_code_from_request()
+    zone_key = (data.get("zoneKey") or data.get("zone_key") or "").strip()
+    plate = (data.get("plate") or "").strip().upper()
+
+    if not student_code:
+        return jsonify({
+            "success": False,
+            "message": "Thiếu mã sinh viên"
+        }), 400
+
+    if not zone_key:
+        return jsonify({
+            "success": False,
+            "message": "Vui lòng chọn khu gửi xe"
+        }), 400
+
+    if not plate:
+        return jsonify({
+            "success": False,
+            "message": "Vui lòng nhập biển số xe"
+        }), 400
+
+    user = get_student_user(student_code)
+
+    if not user:
+        return jsonify({
+            "success": False,
+            "message": "Không tìm thấy tài khoản sinh viên"
+        }), 404
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT *
+        FROM parking_slots
+        WHERE plate = ? AND status IN ('used', 'car', 'warning')
+        LIMIT 1
+    """, (plate,))
+
+    existing = cur.fetchone()
+
+    if existing:
+        conn.close()
+        return jsonify({
+            "success": False,
+            "message": "Biển số này đang có trong bãi"
+        }), 409
+
+    cur.execute("""
+        SELECT *
+        FROM parking_slots
+        WHERE zone_key = ? AND status = 'empty'
+        ORDER BY id
+        LIMIT 1
+    """, (zone_key,))
+
+    slot = cur.fetchone()
+
+    if not slot:
+        conn.close()
+        return jsonify({
+            "success": False,
+            "message": "Khu này hiện không còn chỗ trống"
+        }), 409
+
+    slot = dict(slot)
+    new_status = "car" if slot["vehicle_type"] == "Ô tô" else "used"
+
+    cur.execute("""
+        UPDATE parking_slots
+        SET status = ?,
+            plate = ?,
+            student_code = ?,
+            student_name = ?,
+            note = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE slot_code = ?
+    """, (
+        new_status,
+        plate,
+        student_code,
+        user.get("full_name") or "",
+        "Sinh viên ghi nhận gửi xe",
+        slot["slot_code"]
+    ))
+
+    cur.execute("""
+        INSERT INTO parking_transactions
+        (slot_code, zone_name, plate, student_code, student_name, action, fee)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (
+        slot["slot_code"],
+        slot["zone_name"],
+        plate,
+        student_code,
+        user.get("full_name") or "",
+        "IN",
+        0
+    ))
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "message": "Đã ghi nhận xe vào bãi",
+        "slotCode": slot["slot_code"],
+        "zoneName": slot["zone_name"]
+    })
+
+
+@app.route("/api/student/parking/checkout", methods=["POST"])
+def api_student_parking_checkout():
+    data = request.get_json(silent=True) or {}
+
+    student_code = get_student_code_from_request()
+    plate = (data.get("plate") or "").strip().upper()
+
+    if not student_code:
+        return jsonify({
+            "success": False,
+            "message": "Thiếu mã sinh viên"
+        }), 400
+
+    if not plate:
+        return jsonify({
+            "success": False,
+            "message": "Vui lòng nhập biển số xe"
+        }), 400
+
+    user = get_student_user(student_code)
+
+    if not user:
+        return jsonify({
+            "success": False,
+            "message": "Không tìm thấy tài khoản sinh viên"
+        }), 404
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT *
+        FROM parking_slots
+        WHERE plate = ?
+          AND student_code = ?
+          AND status IN ('used', 'car', 'warning')
+        LIMIT 1
+    """, (plate, student_code))
+
+    slot = cur.fetchone()
+
+    if not slot:
+        conn.close()
+        return jsonify({
+            "success": False,
+            "message": "Không tìm thấy xe của bạn trong bãi"
+        }), 404
+
+    slot = dict(slot)
+    fee = 5000 if slot["vehicle_type"] == "Ô tô" else 3000
+
+    if int(user.get("balance") or 0) < fee:
+        conn.close()
+        return jsonify({
+            "success": False,
+            "message": f"Số dư không đủ để thanh toán phí {fee:,}đ".replace(",", ".")
+        }), 400
+
+    cur.execute("""
+        UPDATE users
+        SET balance = COALESCE(balance, 0) - ?
+        WHERE student_code = ? OR username = ?
+    """, (fee, student_code, student_code))
+
+    cur.execute("""
+        UPDATE parking_slots
+        SET status = 'empty',
+            plate = '',
+            student_code = '',
+            student_name = '',
+            note = 'Xe đã ra khỏi bãi',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE slot_code = ?
+    """, (slot["slot_code"],))
+
+    cur.execute("""
+        INSERT INTO parking_transactions
+        (slot_code, zone_name, plate, student_code, student_name, action, fee)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (
+        slot["slot_code"],
+        slot["zone_name"],
+        slot["plate"],
+        student_code,
+        user.get("full_name") or "",
+        "OUT",
+        fee
+    ))
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "message": "Đã ghi nhận xe ra khỏi bãi",
+        "slotCode": slot["slot_code"],
+        "fee": fee
+    })
+
+
+# ================== END STUDENT FEATURES ==================
+@app.route("/student/<path:filename>")
+def student_page(filename):
+    return send_frontend_file(os.path.join("student", filename))
+
+# ================== STUDENT VEHICLES FEATURE ==================
+
+
+def ensure_student_vehicles_table():
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS student_vehicles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            student_code TEXT NOT NULL,
+            owner_name TEXT DEFAULT '',
+            plate TEXT NOT NULL,
+            vehicle_type TEXT NOT NULL DEFAULT 'Xe máy',
+            brand TEXT DEFAULT '',
+            color TEXT DEFAULT '',
+            is_default INTEGER DEFAULT 0,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(student_code, plate)
+        )
+    """)
+
+    conn.commit()
+    conn.close()
+
+
+def make_default_vietnam_plate(student_code):
+    seed = 0
+
+    for index, char in enumerate(student_code):
+        seed += (index + 1) * ord(char)
+
+    number = 10000 + seed % 90000
+
+    return "29X1-" + str(number)
+
+
+def get_vehicle_student_code_from_request():
+    data = request.get_json(silent=True) or {}
+
+    return (
+        request.args.get("student_code")
+        or request.args.get("studentCode")
+        or data.get("student_code")
+        or data.get("studentCode")
+        or ""
+    ).strip().upper()
+
+
+def get_vehicle_student_user(student_code):
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT id, username, full_name, role, student_code, balance
+        FROM users
+        WHERE student_code = ? OR username = ?
+        LIMIT 1
+    """, (student_code, student_code))
+
+    user = cur.fetchone()
+    conn.close()
+
+    return dict(user) if user else None
+
+
+def ensure_default_vehicle_for_student(student_code, owner_name):
+    ensure_student_vehicles_table()
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT COUNT(*) AS total
+        FROM student_vehicles
+        WHERE student_code = ?
+    """, (student_code,))
+
+    total = cur.fetchone()["total"]
+
+    if total == 0:
+        default_plate = make_default_vietnam_plate(student_code)
+
+        cur.execute("""
+            INSERT OR IGNORE INTO student_vehicles
+            (student_code, owner_name, plate, vehicle_type, brand, color, is_default)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (
+            student_code,
+            owner_name or "",
+            default_plate,
+            "Xe máy",
+            "Honda",
+            "Đen",
+            1
+        ))
+
+    conn.commit()
+    conn.close()
+
+
+@app.route("/api/student/vehicles", methods=["GET"])
+def api_student_vehicles():
+    ensure_student_vehicles_table()
+
+    student_code = get_vehicle_student_code_from_request()
+
+    if not student_code:
+        return jsonify({
+            "success": False,
+            "message": "Thiếu mã sinh viên"
+        }), 400
+
+    user = get_vehicle_student_user(student_code)
+
+    if not user:
+        return jsonify({
+            "success": False,
+            "message": "Không tìm thấy tài khoản sinh viên"
+        }), 404
+
+    real_student_code = user.get("student_code") or user.get("username")
+    owner_name = user.get("full_name") or ""
+
+    ensure_default_vehicle_for_student(real_student_code, owner_name)
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT *
+        FROM student_vehicles
+        WHERE student_code = ?
+        ORDER BY is_default DESC, created_at DESC
+    """, (real_student_code,))
+    vehicle_rows = cur.fetchall()
+
+    vehicles = [dict(row) for row in vehicle_rows]
+
+    cur.execute("""
+        SELECT slot_code, zone_name, vehicle_type, status, plate, student_code, student_name, note, updated_at
+        FROM parking_slots
+        WHERE student_code = ?
+          AND status IN ('used', 'car', 'warning')
+        ORDER BY updated_at DESC
+    """, (real_student_code,))
+    parking_rows = cur.fetchall()
+
+    active_parking = [dict(row) for row in parking_rows]
+    active_plates = []
+
+    for item in active_parking:
+        if item.get("plate"):
+            active_plates.append(item.get("plate"))
+
+    for vehicle in vehicles:
+        vehicle["isParking"] = vehicle.get("plate") in active_plates
+
+        vehicle["parkingInfo"] = None
+
+        for parking in active_parking:
+            if parking.get("plate") == vehicle.get("plate"):
+                vehicle["parkingInfo"] = parking
+                break
+
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "student": {
+            "studentCode": real_student_code,
+            "fullName": owner_name
+        },
+        "vehicles": vehicles,
+        "activeParking": active_parking
+    })
+
+
+@app.route("/api/student/vehicles", methods=["POST"])
+def api_student_vehicle_add():
+    ensure_student_vehicles_table()
+
+    data = request.get_json(silent=True) or {}
+
+    student_code = get_vehicle_student_code_from_request()
+    plate = (data.get("plate") or "").strip().upper()
+    vehicle_type = (data.get("vehicleType") or data.get(
+        "vehicle_type") or "Xe máy").strip()
+    brand = (data.get("brand") or "").strip()
+    color = (data.get("color") or "").strip()
+
+    if not student_code:
+        return jsonify({
+            "success": False,
+            "message": "Thiếu mã sinh viên"
+        }), 400
+
+    if not plate:
+        return jsonify({
+            "success": False,
+            "message": "Vui lòng nhập biển số xe"
+        }), 400
+
+    user = get_vehicle_student_user(student_code)
+
+    if not user:
+        return jsonify({
+            "success": False,
+            "message": "Không tìm thấy tài khoản sinh viên"
+        }), 404
+
+    real_student_code = user.get("student_code") or user.get("username")
+    owner_name = user.get("full_name") or ""
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT COUNT(*) AS total
+        FROM student_vehicles
+        WHERE student_code = ?
+    """, (real_student_code,))
+    total = cur.fetchone()["total"]
+
+    is_default = 1 if total == 0 else 0
+
+    try:
+        cur.execute("""
+            INSERT INTO student_vehicles
+            (student_code, owner_name, plate, vehicle_type, brand, color, is_default)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (
+            real_student_code,
+            owner_name,
+            plate,
+            vehicle_type,
+            brand,
+            color,
+            is_default
+        ))
+
+        conn.commit()
+    except sqlite3.IntegrityError:
+        conn.close()
+
+        return jsonify({
+            "success": False,
+            "message": "Biển số này đã tồn tại trong danh sách xe của bạn"
+        }), 409
+
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "message": "Đã khai báo xe thành công"
+    })
+
+
+@app.route("/api/student/vehicles/<int:vehicle_id>", methods=["DELETE"])
+def api_student_vehicle_delete(vehicle_id):
+    ensure_student_vehicles_table()
+
+    student_code = get_vehicle_student_code_from_request()
+
+    if not student_code:
+        return jsonify({
+            "success": False,
+            "message": "Thiếu mã sinh viên"
+        }), 400
+
+    user = get_vehicle_student_user(student_code)
+
+    if not user:
+        return jsonify({
+            "success": False,
+            "message": "Không tìm thấy tài khoản sinh viên"
+        }), 404
+
+    real_student_code = user.get("student_code") or user.get("username")
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT *
+        FROM student_vehicles
+        WHERE id = ? AND student_code = ?
+    """, (vehicle_id, real_student_code))
+
+    vehicle = cur.fetchone()
+
+    if not vehicle:
+        conn.close()
+
+        return jsonify({
+            "success": False,
+            "message": "Không tìm thấy xe cần xóa"
+        }), 404
+
+    vehicle = dict(vehicle)
+
+    cur.execute("""
+        SELECT *
+        FROM parking_slots
+        WHERE plate = ?
+          AND student_code = ?
+          AND status IN ('used', 'car', 'warning')
+        LIMIT 1
+    """, (vehicle["plate"], real_student_code))
+
+    active = cur.fetchone()
+
+    if active:
+        conn.close()
+
+        return jsonify({
+            "success": False,
+            "message": "Xe đang gửi trong bãi, không thể xóa khỏi danh sách"
+        }), 400
+
+    cur.execute("""
+        DELETE FROM student_vehicles
+        WHERE id = ? AND student_code = ?
+    """, (vehicle_id, real_student_code))
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "message": "Đã xóa xe khỏi danh sách"
+    })
+
+
+@app.route("/api/student/vehicles/<int:vehicle_id>/default", methods=["POST"])
+def api_student_vehicle_set_default(vehicle_id):
+    ensure_student_vehicles_table()
+
+    student_code = get_vehicle_student_code_from_request()
+
+    if not student_code:
+        return jsonify({
+            "success": False,
+            "message": "Thiếu mã sinh viên"
+        }), 400
+
+    user = get_vehicle_student_user(student_code)
+
+    if not user:
+        return jsonify({
+            "success": False,
+            "message": "Không tìm thấy tài khoản sinh viên"
+        }), 404
+
+    real_student_code = user.get("student_code") or user.get("username")
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT *
+        FROM student_vehicles
+        WHERE id = ? AND student_code = ?
+    """, (vehicle_id, real_student_code))
+
+    vehicle = cur.fetchone()
+
+    if not vehicle:
+        conn.close()
+
+        return jsonify({
+            "success": False,
+            "message": "Không tìm thấy xe"
+        }), 404
+
+    cur.execute("""
+        UPDATE student_vehicles
+        SET is_default = 0
+        WHERE student_code = ?
+    """, (real_student_code,))
+
+    cur.execute("""
+        UPDATE student_vehicles
+        SET is_default = 1
+        WHERE id = ? AND student_code = ?
+    """, (vehicle_id, real_student_code))
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "message": "Đã đặt làm xe mặc định"
+    })
+
+
+# ================== END STUDENT VEHICLES FEATURE ==================
 init_database()
 
 if __name__ == "__main__":
