@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trang chủ sinh viên - UTT Smart Parking System</title>
+    <link rel="stylesheet" href="student-common.css" />
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">🅿️</div>
+                <div>
+                    <h2>UTT Smart Parking System</h2>
+                    <p>Cổng sinh viên</p>
+                </div>
+            </div>
+
+            <div class="nav">
+                <div class="nav-title">Sinh viên</div>
+
+                <a class="active" href="student-home.html">🏠 Trang chủ</a>
+                <a href="student-vehicles.html">🚗 Xe của tôi</a>
+                <a href="student-wallet.html">💰 Ví / Nạp tiền</a>
+                <a href="student-parking.html">🅿️ Bãi xe</a>
+                <a href="student-history.html">📜 Lịch sử</a>
+
+                <button class="logout" onclick="logout()">Đăng xuất</button>
+            </div>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div class="topbar-title">
+                    <strong>Trang chủ sinh viên</strong>
+                    <p>Quản lý xe, ví, gửi xe và lịch sử giao dịch</p>
+                </div>
+
+                <div class="profile">
+                    <div class="avatar">S</div>
+                    <div>
+                        <strong class="current-user-name">Sinh viên</strong>
+                        <span class="current-user-code">---</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="title">
+                    <h1>Xin chào, <span class="current-user-name">Sinh viên</span></h1>
+                    <p>
+                        Đây là trang tổng quan dành cho sinh viên. Dữ liệu ví, xe, bãi xe và lịch sử
+                        được đồng bộ từ backend.
+                    </p>
+                </div>
+
+                <div class="cards">
+                    <div class="card">
+                        <div class="icon">💰</div>
+                        <h3>Số dư ví</h3>
+                        <strong id="balance">0đ</strong>
+                    </div>
+
+                    <div class="card">
+                        <div class="icon">🚗</div>
+                        <h3>Xe đã khai báo</h3>
+                        <strong id="vehicleCount">0</strong>
+                    </div>
+
+                    <div class="card">
+                        <div class="icon">🅿️</div>
+                        <h3>Xe đang gửi</h3>
+                        <strong id="parkingCount">0</strong>
+                    </div>
+
+                    <div class="card">
+                        <div class="icon">📜</div>
+                        <h3>Giao dịch gần đây</h3>
+                        <strong id="historyCount">0</strong>
+                    </div>
+                </div>
+
+                <div class="quick-link-grid">
+                    <div class="quick-link">
+                        <h3>🚗 Xe của tôi</h3>
+                        <p>
+                            Khai báo xe cá nhân, xem xe nào đang gửi trong bãi và chuẩn bị dữ liệu
+                            cho thao tác gửi xe.
+                        </p>
+                        <button class="btn" onclick="window.location.href='student-vehicles.html'">
+                            Mở Xe của tôi
+                        </button>
+                    </div>
+
+                    <div class="quick-link">
+                        <h3>🅿️ Bãi xe</h3>
+                        <p>
+                            Chọn xe đã khai báo để gửi xe. Khi gửi xe, hệ thống sẽ trừ tiền trong ví.
+                        </p>
+                        <button class="btn btn-green" onclick="window.location.href='student-parking.html'">
+                            Mở Bãi xe
+                        </button>
+                    </div>
+
+                    <div class="quick-link">
+                        <h3>💰 Ví / Nạp tiền</h3>
+                        <p>
+                            Nạp tiền vào ví và kiểm tra lịch sử cộng/trừ tiền của tài khoản sinh viên.
+                        </p>
+                        <button class="btn btn-orange" onclick="window.location.href='student-wallet.html'">
+                            Mở Ví
+                        </button>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>Giao dịch gần đây</h2>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Thời gian</th>
+                                <th>Loại giao dịch</th>
+                                <th>Biển số</th>
+                                <th>Khu / Ô</th>
+                                <th>Biến động ví</th>
+                                <th>Số dư sau</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="recentTable">
+                            <tr>
+                                <td colspan="6">Đang tải dữ liệu...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div id="homeMsg" class="message"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="student-common.js"></script>
+
+    <script>
+        if (guardStudent()) {
+            loadHome();
+        }
+
+        async function loadHome() {
+            try {
+                clearMsg("homeMsg");
+
+                const walletData = await apiGet(
+                    "/student/wallet?student_code=" + encodeURIComponent(currentUser.studentCode)
+                );
+
+                const vehicleData = await apiGet(
+                    "/student/vehicles?student_code=" + encodeURIComponent(currentUser.studentCode)
+                );
+
+                const historyData = await apiGet(
+                    "/student/history?student_code=" + encodeURIComponent(currentUser.studentCode)
+                );
+
+                const wallet = walletData.wallet || {};
+                const vehicles = vehicleData.vehicles || [];
+                const activeParking = vehicleData.activeParking || [];
+                const history = historyData.history || [];
+
+                document.getElementById("balance").textContent = money(wallet.balance);
+                document.getElementById("vehicleCount").textContent = vehicles.length;
+                document.getElementById("parkingCount").textContent = activeParking.length;
+                document.getElementById("historyCount").textContent = history.length;
+
+                renderRecentHistory(history);
+            } catch (error) {
+                showMsg("homeMsg", error.message, false);
+
+                document.getElementById("recentTable").innerHTML = `
+                    <tr>
+                        <td colspan="6">${error.message}</td>
+                    </tr>
+                `;
+            }
+        }
+
+        function renderRecentHistory(history) {
+            const recentTable = document.getElementById("recentTable");
+
+            if (!history || history.length === 0) {
+                recentTable.innerHTML = `
+                    <tr>
+                        <td colspan="6">Chưa có giao dịch nào.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            recentTable.innerHTML = history.slice(0, 8).map(function (item) {
+                return `
+                    <tr>
+                        <td>${formatDateTime(item.created_at)}</td>
+                        <td>${actionLabel(item.action)}</td>
+                        <td><strong>${item.plate || "---"}</strong></td>
+                        <td>${item.zone_name || "---"} ${item.slot_code ? "· " + item.slot_code : ""}</td>
+                        <td class="${moneyChangeClass(item.amount)}">${moneyChange(item.amount)}</td>
+                        <td>${item.balance_after ? money(item.balance_after) : "---"}</td>
+                    </tr>
+                `;
+            }).join("");
+        }
+    </script>
+</body>
+
+</html>
