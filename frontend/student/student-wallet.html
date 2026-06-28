@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ví / Nạp tiền - UTT Smart Parking System</title>
+    <link rel="stylesheet" href="student-common.css" />
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">🅿️</div>
+                <div>
+                    <h2>UTT Smart Parking System</h2>
+                    <p>Cổng sinh viên</p>
+                </div>
+            </div>
+
+            <div class="nav">
+                <div class="nav-title">Sinh viên</div>
+
+                <a href="student-home.html">🏠 Trang chủ</a>
+                <a href="student-vehicles.html">🚗 Xe của tôi</a>
+                <a class="active" href="student-wallet.html">💰 Ví / Nạp tiền</a>
+                <a href="student-parking.html">🅿️ Bãi xe</a>
+                <a href="student-history.html">📜 Lịch sử</a>
+
+                <button class="logout" onclick="logout()">Đăng xuất</button>
+            </div>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div class="topbar-title">
+                    <strong>Ví / Nạp tiền</strong>
+                    <p>Quản lý số dư và lịch sử cộng/trừ tiền</p>
+                </div>
+
+                <div class="profile">
+                    <div class="avatar">S</div>
+                    <div>
+                        <strong class="current-user-name">Sinh viên</strong>
+                        <span class="current-user-code">---</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="title">
+                    <h1>Ví sinh viên</h1>
+                    <p>
+                        Số dư ví được dùng để thanh toán phí gửi xe. Khi nạp tiền, lịch sử sẽ ghi cộng tiền.
+                        Khi gửi xe, hệ thống sẽ tự trừ phí và ghi lịch sử trừ tiền.
+                    </p>
+                </div>
+
+                <div class="cards">
+                    <div class="card">
+                        <div class="icon">💰</div>
+                        <h3>Số dư hiện tại</h3>
+                        <strong id="balance">0đ</strong>
+                    </div>
+
+                    <div class="card">
+                        <div class="icon">➕</div>
+                        <h3>Tổng tiền đã nạp</h3>
+                        <strong id="totalTopup">0đ</strong>
+                    </div>
+
+                    <div class="card">
+                        <div class="icon">➖</div>
+                        <h3>Phí đã trừ</h3>
+                        <strong id="totalSpent">0đ</strong>
+                    </div>
+
+                    <div class="card">
+                        <div class="icon">📜</div>
+                        <h3>Giao dịch ví</h3>
+                        <strong id="totalTransactions">0</strong>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>Nạp tiền vào ví</h2>
+
+                    <div class="note-box">
+                        Số tiền nạp tối thiểu là <strong>10.000đ</strong>.
+                        Giao dịch nạp tiền sẽ được ghi vào lịch sử ví và lịch sử chung của sinh viên.
+                    </div>
+
+                    <div class="form-grid">
+                        <select id="amount">
+                            <option value="10000">10.000đ</option>
+                            <option value="20000">20.000đ</option>
+                            <option value="50000">50.000đ</option>
+                            <option value="100000">100.000đ</option>
+                            <option value="200000">200.000đ</option>
+                            <option value="500000">500.000đ</option>
+                        </select>
+
+                        <select id="method">
+                            <option value="Nạp tiền tại quầy">Nạp tiền tại quầy</option>
+                            <option value="Chuyển khoản ngân hàng">Chuyển khoản ngân hàng</option>
+                            <option value="Ví điện tử">Ví điện tử</option>
+                        </select>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn" onclick="topup()">Xác nhận nạp tiền</button>
+                        <button class="btn btn-dark" onclick="loadWallet()">Tải lại dữ liệu</button>
+                    </div>
+
+                    <div id="walletMsg" class="message"></div>
+                </div>
+
+                <div class="panel">
+                    <h2>Lịch sử cộng / trừ tiền trong ví</h2>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Thời gian</th>
+                                <th>Nội dung</th>
+                                <th>Biến động</th>
+                                <th>Số dư trước</th>
+                                <th>Số dư sau</th>
+                                <th>Phương thức / Ghi chú</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="walletTable">
+                            <tr>
+                                <td colspan="6">Đang tải dữ liệu...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="student-common.js"></script>
+
+    <script>
+        let walletHistory = [];
+
+        if (guardStudent()) {
+            loadWallet();
+        }
+
+        async function loadWallet() {
+            try {
+                clearMsg("walletMsg");
+
+                const data = await apiGet(
+                    "/student/wallet?student_code=" + encodeURIComponent(currentUser.studentCode)
+                );
+
+                const wallet = data.wallet || {};
+                walletHistory = wallet.history || [];
+
+                document.getElementById("balance").textContent = money(wallet.balance);
+
+                const totalTopup = walletHistory
+                    .filter(function (item) {
+                        return item.action === "TOPUP";
+                    })
+                    .reduce(function (sum, item) {
+                        return sum + Number(item.amount || 0);
+                    }, 0);
+
+                const totalSpent = walletHistory
+                    .filter(function (item) {
+                        return Number(item.amount || 0) < 0;
+                    })
+                    .reduce(function (sum, item) {
+                        return sum + Math.abs(Number(item.amount || 0));
+                    }, 0);
+
+                document.getElementById("totalTopup").textContent = money(totalTopup);
+                document.getElementById("totalSpent").textContent = money(totalSpent);
+                document.getElementById("totalTransactions").textContent = walletHistory.length;
+
+                renderWalletTable();
+            } catch (error) {
+                showMsg("walletMsg", error.message, false);
+
+                document.getElementById("walletTable").innerHTML = `
+                    <tr>
+                        <td colspan="6">${error.message}</td>
+                    </tr>
+                `;
+            }
+        }
+
+        function renderWalletTable() {
+            const table = document.getElementById("walletTable");
+
+            if (!walletHistory || walletHistory.length === 0) {
+                table.innerHTML = `
+                    <tr>
+                        <td colspan="6">Chưa có giao dịch ví.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            table.innerHTML = walletHistory.map(function (item) {
+                return `
+                    <tr>
+                        <td>${formatDateTime(item.created_at)}</td>
+                        <td>${item.actionText || item.description || actionLabel(item.action)}</td>
+                        <td class="${moneyChangeClass(item.amount)}">
+                            ${moneyChange(item.amount)}
+                        </td>
+                        <td>${money(item.balance_before)}</td>
+                        <td><strong>${money(item.balance_after)}</strong></td>
+                        <td>${item.payment_method || item.description || "---"}</td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        async function topup() {
+            const amount = Number(document.getElementById("amount").value);
+            const method = document.getElementById("method").value;
+
+            try {
+                const data = await apiPost("/student/wallet/topup", {
+                    studentCode: currentUser.studentCode,
+                    amount: amount,
+                    method: method
+                });
+
+                showMsg("walletMsg", data.message || "Nạp tiền thành công.", true);
+
+                await loadWallet();
+            } catch (error) {
+                showMsg("walletMsg", error.message, false);
+            }
+        }
+    </script>
+</body>
+
+</html>

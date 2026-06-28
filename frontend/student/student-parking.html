@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bãi xe - UTT Smart Parking System</title>
+    <link rel="stylesheet" href="student-common.css" />
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">🅿️</div>
+                <div>
+                    <h2>UTT Smart Parking System</h2>
+                    <p>Cổng sinh viên</p>
+                </div>
+            </div>
+
+            <div class="nav">
+                <div class="nav-title">Sinh viên</div>
+
+                <a href="student-home.html">🏠 Trang chủ</a>
+                <a href="student-vehicles.html">🚗 Xe của tôi</a>
+                <a href="student-wallet.html">💰 Ví / Nạp tiền</a>
+                <a class="active" href="student-parking.html">🅿️ Bãi xe</a>
+                <a href="student-history.html">📜 Lịch sử</a>
+
+                <button class="logout" onclick="logout()">Đăng xuất</button>
+            </div>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div class="topbar-title">
+                    <strong>Bãi xe</strong>
+                    <p>Gửi xe, lấy xe và theo dõi chỗ trống</p>
+                </div>
+
+                <div class="profile">
+                    <div class="avatar">S</div>
+                    <div>
+                        <strong class="current-user-name">Sinh viên</strong>
+                        <span class="current-user-code">---</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="title">
+                    <h1>Gửi xe / Lấy xe</h1>
+                    <p>
+                        Chọn xe đã khai báo trong mục <strong>Xe của tôi</strong>.
+                        Khi gửi xe, hệ thống sẽ tự trừ tiền trong ví và ghi vào lịch sử.
+                    </p>
+                </div>
+
+                <div class="cards">
+                    <div class="card">
+                        <div class="icon">💰</div>
+                        <h3>Số dư ví</h3>
+                        <strong id="balance">0đ</strong>
+                    </div>
+
+                    <div class="card">
+                        <div class="icon">🅿️</div>
+                        <h3>Tổng ô</h3>
+                        <strong id="totalSlots">0</strong>
+                    </div>
+
+                    <div class="card">
+                        <div class="icon">✅</div>
+                        <h3>Còn trống</h3>
+                        <strong id="emptySlots">0</strong>
+                    </div>
+
+                    <div class="card">
+                        <div class="icon">🚗</div>
+                        <h3>Đang có xe</h3>
+                        <strong id="usedSlots">0</strong>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>Thao tác gửi xe</h2>
+
+                    <div class="note-box">
+                        Phí gửi xe được trừ ngay khi bấm <strong>Gửi xe và trừ tiền</strong>:
+                        <br />
+                        Xe máy / xe điện: <strong>3.000đ/lượt</strong>.
+                        Ô tô: <strong>5.000đ/lượt</strong>.
+                    </div>
+
+                    <div class="form-grid">
+                        <select id="vehicleSelect" onchange="renderZoneSelect()">
+                            <option value="">Đang tải xe...</option>
+                        </select>
+
+                        <select id="zoneKey">
+                            <option value="">Đang tải khu...</option>
+                        </select>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn btn-green" onclick="checkin()">Gửi xe và trừ tiền</button>
+                        <button class="btn btn-orange" onclick="checkout()">Lấy xe</button>
+                        <button class="btn btn-dark" onclick="reloadAll()">Tải lại dữ liệu</button>
+                        <button class="btn" onclick="window.location.href='student-vehicles.html'">Khai báo xe</button>
+                    </div>
+
+                    <div id="parkingMsg" class="message"></div>
+                </div>
+
+                <div class="panel">
+                    <h2>Trạng thái các khu gửi xe</h2>
+
+                    <div class="zone-grid" id="zoneGrid">
+                        <div class="zone-card">
+                            <h3>Đang tải dữ liệu...</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>Xe của bạn đang gửi trong bãi</h2>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Biển số</th>
+                                <th>Mã ô</th>
+                                <th>Khu vực</th>
+                                <th>Loại xe</th>
+                                <th>Trạng thái</th>
+                                <th>Cập nhật</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="activeTable">
+                            <tr>
+                                <td colspan="6">Đang tải dữ liệu...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="student-common.js"></script>
+
+    <script>
+        let zones = [];
+        let vehicles = [];
+        let activeParking = [];
+
+        if (guardStudent()) {
+            reloadAll();
+        }
+
+        async function reloadAll() {
+            try {
+                clearMsg("parkingMsg");
+
+                await loadWallet();
+                await loadVehicles();
+                await loadZones();
+
+                renderVehicleSelect();
+                renderZoneSelect();
+                renderZones();
+                renderActiveTable();
+            } catch (error) {
+                showMsg("parkingMsg", error.message, false);
+            }
+        }
+
+        async function loadWallet() {
+            const data = await apiGet(
+                "/student/wallet?student_code=" + encodeURIComponent(currentUser.studentCode)
+            );
+
+            const wallet = data.wallet || {};
+            document.getElementById("balance").textContent = money(wallet.balance);
+        }
+
+        async function loadVehicles() {
+            const data = await apiGet(
+                "/student/vehicles?student_code=" + encodeURIComponent(currentUser.studentCode)
+            );
+
+            vehicles = data.vehicles || [];
+            activeParking = data.activeParking || [];
+        }
+
+        async function loadZones() {
+            const data = await apiGet("/student/parking/zones");
+
+            zones = data.zones || [];
+
+            const total = zones.reduce(function (sum, zone) {
+                return sum + Number(zone.totalSlots || 0);
+            }, 0);
+
+            const empty = zones.reduce(function (sum, zone) {
+                return sum + Number(zone.emptySlots || zone.availableSlots || 0);
+            }, 0);
+
+            const used = zones.reduce(function (sum, zone) {
+                return sum + Number(zone.usedSlots || zone.occupiedSlots || 0);
+            }, 0);
+
+            document.getElementById("totalSlots").textContent = total;
+            document.getElementById("emptySlots").textContent = empty;
+            document.getElementById("usedSlots").textContent = used;
+        }
+
+        function renderVehicleSelect() {
+            const vehicleSelect = document.getElementById("vehicleSelect");
+
+            if (!vehicles || vehicles.length === 0) {
+                vehicleSelect.innerHTML = `
+                    <option value="">Bạn chưa khai báo xe</option>
+                `;
+                return;
+            }
+
+            vehicleSelect.innerHTML = vehicles.map(function (vehicle) {
+                const parkingText = vehicle.isParking ? " - đang gửi" : " - chưa gửi";
+
+                return `
+                    <option value="${vehicle.plate}">
+                        ${vehicle.plate} · ${vehicle.vehicle_type}${parkingText}
+                    </option>
+                `;
+            }).join("");
+        }
+
+        function getSelectedVehicle() {
+            const plate = document.getElementById("vehicleSelect").value;
+
+            return vehicles.find(function (vehicle) {
+                return vehicle.plate === plate;
+            });
+        }
+
+        function renderZoneSelect() {
+            const zoneSelect = document.getElementById("zoneKey");
+            const vehicle = getSelectedVehicle();
+
+            if (!zones || zones.length === 0) {
+                zoneSelect.innerHTML = `
+                    <option value="">Chưa có dữ liệu khu gửi xe</option>
+                `;
+                return;
+            }
+
+            let filteredZones = zones;
+
+            if (vehicle) {
+                if (vehicle.vehicle_type === "Ô tô") {
+                    filteredZones = zones.filter(function (zone) {
+                        return zone.zoneKey === "car" || zone.zone_key === "car";
+                    });
+                } else {
+                    filteredZones = zones.filter(function (zone) {
+                        return zone.zoneKey !== "car" && zone.zone_key !== "car";
+                    });
+                }
+            }
+
+            if (filteredZones.length === 0) {
+                zoneSelect.innerHTML = `
+                    <option value="">Không có khu phù hợp với xe này</option>
+                `;
+                return;
+            }
+
+            zoneSelect.innerHTML = filteredZones.map(function (zone) {
+                const zoneKey = zone.zoneKey || zone.zone_key;
+                const zoneName = zone.zoneName || zone.zone_name || zone.name;
+                const empty = zone.emptySlots || zone.availableSlots || 0;
+
+                return `
+                    <option value="${zoneKey}">
+                        ${zoneName} - còn ${empty} chỗ
+                    </option>
+                `;
+            }).join("");
+        }
+
+        function renderZones() {
+            const zoneGrid = document.getElementById("zoneGrid");
+
+            if (!zones || zones.length === 0) {
+                zoneGrid.innerHTML = `
+                    <div class="zone-card">
+                        <h3>Chưa có dữ liệu khu gửi xe</h3>
+                    </div>
+                `;
+                return;
+            }
+
+            zoneGrid.innerHTML = zones.map(function (zone) {
+                const zoneName = zone.zoneName || zone.zone_name || zone.name;
+                const vehicleType = zone.vehicleType || zone.vehicle_type;
+                const total = Number(zone.totalSlots || zone.total_slots || 0);
+                const empty = Number(zone.emptySlots || zone.availableSlots || 0);
+                const used = Number(zone.usedSlots || zone.occupiedSlots || 0);
+                const warning = Number(zone.warningSlots || 0);
+                const density = total === 0 ? 0 : Math.round((used / total) * 100);
+
+                return `
+                    <div class="zone-card">
+                        <h3>${vehicleType === "Ô tô" ? "🚗" : "🏍️"} ${zoneName}</h3>
+                        <p>Loại xe: <strong>${vehicleType}</strong></p>
+
+                        <div class="progress">
+                            <span style="width:${Math.max(density, 3)}%;"></span>
+                        </div>
+
+                        <div class="zone-mini">
+                            <div>
+                                <span>Tổng ô</span>
+                                <strong>${total}</strong>
+                            </div>
+
+                            <div>
+                                <span>Còn trống</span>
+                                <strong>${empty}</strong>
+                            </div>
+
+                            <div>
+                                <span>Có xe</span>
+                                <strong>${used}</strong>
+                            </div>
+
+                            <div>
+                                <span>Cảnh báo</span>
+                                <strong>${warning}</strong>
+                            </div>
+                        </div>
+
+                        <p style="margin-top:14px;">Mật độ sử dụng: <strong>${density}%</strong></p>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        function renderActiveTable() {
+            const table = document.getElementById("activeTable");
+
+            if (!activeParking || activeParking.length === 0) {
+                table.innerHTML = `
+                    <tr>
+                        <td colspan="6">Hiện bạn chưa có xe nào đang gửi trong bãi.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            table.innerHTML = activeParking.map(function (item) {
+                return `
+                    <tr>
+                        <td><strong>${item.plate || "---"}</strong></td>
+                        <td>${item.slot_code || item.slotCode || "---"}</td>
+                        <td>${item.zone_name || item.zoneName || "---"}</td>
+                        <td>${item.vehicle_type || item.vehicleType || "---"}</td>
+                        <td>${statusBadge(item.status || "used")}</td>
+                        <td>${formatDateTime(item.updated_at || item.updatedAt)}</td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        async function checkin() {
+            const vehicle = getSelectedVehicle();
+            const zoneKey = document.getElementById("zoneKey").value;
+
+            if (!vehicle) {
+                showMsg("parkingMsg", "Bạn cần khai báo xe trước khi gửi xe.", false);
+                return;
+            }
+
+            if (vehicle.isParking) {
+                showMsg("parkingMsg", "Xe này đang gửi trong bãi, không thể gửi thêm lần nữa.", false);
+                return;
+            }
+
+            if (!zoneKey) {
+                showMsg("parkingMsg", "Vui lòng chọn khu gửi xe.", false);
+                return;
+            }
+
+            const confirmCheckin = confirm(
+                "Xác nhận gửi xe " + vehicle.plate + "?\n" +
+                "Hệ thống sẽ trừ phí từ ví của bạn."
+            );
+
+            if (!confirmCheckin) {
+                return;
+            }
+
+            try {
+                const data = await apiPost("/student/parking/checkin", {
+                    studentCode: currentUser.studentCode,
+                    zoneKey: zoneKey,
+                    plate: vehicle.plate
+                });
+
+                showMsg(
+                    "parkingMsg",
+                    data.message + ". Ô gửi xe: " + data.slotCode + ". Số dư còn lại: " + money(data.balanceAfter),
+                    true
+                );
+
+                await reloadAll();
+            } catch (error) {
+                showMsg("parkingMsg", error.message, false);
+            }
+        }
+
+        async function checkout() {
+            const vehicle = getSelectedVehicle();
+
+            if (!vehicle) {
+                showMsg("parkingMsg", "Vui lòng chọn xe cần lấy.", false);
+                return;
+            }
+
+            if (!vehicle.isParking) {
+                showMsg("parkingMsg", "Xe này hiện không nằm trong bãi.", false);
+                return;
+            }
+
+            const confirmCheckout = confirm(
+                "Xác nhận lấy xe " + vehicle.plate + " khỏi bãi?"
+            );
+
+            if (!confirmCheckout) {
+                return;
+            }
+
+            try {
+                const data = await apiPost("/student/parking/checkout", {
+                    studentCode: currentUser.studentCode,
+                    plate: vehicle.plate
+                });
+
+                showMsg(
+                    "parkingMsg",
+                    data.message + ". Không trừ thêm tiền vì phí đã được trừ lúc gửi xe.",
+                    true
+                );
+
+                await reloadAll();
+            } catch (error) {
+                showMsg("parkingMsg", error.message, false);
+            }
+        }
+    </script>
+</body>
+
+</html>
