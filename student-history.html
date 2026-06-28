@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lịch sử - UTT Smart Parking System</title>
+    <link rel="stylesheet" href="student-common.css" />
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">🅿️</div>
+                <div>
+                    <h2>UTT Smart Parking System</h2>
+                    <p>Cổng sinh viên</p>
+                </div>
+            </div>
+
+            <div class="nav">
+                <div class="nav-title">Sinh viên</div>
+
+                <a href="student-home.html">🏠 Trang chủ</a>
+                <a href="student-vehicles.html">🚗 Xe của tôi</a>
+                <a href="student-wallet.html">💰 Ví / Nạp tiền</a>
+                <a href="student-parking.html">🅿️ Bãi xe</a>
+                <a class="active" href="student-history.html">📜 Lịch sử</a>
+
+                <button class="logout" onclick="logout()">Đăng xuất</button>
+            </div>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div class="topbar-title">
+                    <strong>Lịch sử giao dịch</strong>
+                    <p>Theo dõi nạp tiền, gửi xe, lấy xe và biến động ví</p>
+                </div>
+
+                <div class="profile">
+                    <div class="avatar">S</div>
+                    <div>
+                        <strong class="current-user-name">Sinh viên</strong>
+                        <span class="current-user-code">---</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="title">
+                    <h1>Lịch sử</h1>
+                    <p>
+                        Mỗi lần nạp tiền sẽ ghi giao dịch cộng tiền. Mỗi lần gửi xe sẽ ghi giao dịch
+                        trừ phí từ ví. Khi lấy xe, hệ thống ghi nhận xe ra khỏi bãi.
+                    </p>
+                </div>
+
+                <div class="cards">
+                    <div class="card">
+                        <div class="icon">📜</div>
+                        <h3>Tổng giao dịch</h3>
+                        <strong id="totalHistory">0</strong>
+                    </div>
+
+                    <div class="card">
+                        <div class="icon">➕</div>
+                        <h3>Tổng tiền cộng</h3>
+                        <strong id="plusTotal">0đ</strong>
+                    </div>
+
+                    <div class="card">
+                        <div class="icon">➖</div>
+                        <h3>Tổng tiền trừ</h3>
+                        <strong id="minusTotal">0đ</strong>
+                    </div>
+
+                    <div class="card">
+                        <div class="icon">🅿️</div>
+                        <h3>Lượt gửi xe</h3>
+                        <strong id="parkingCount">0</strong>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>Bảng lịch sử giao dịch</h2>
+
+                    <div class="actions" style="margin-top:0; margin-bottom:16px;">
+                        <button class="btn" onclick="loadHistory()">Tải lại dữ liệu</button>
+                        <button class="btn btn-dark" onclick="exportHistoryCSV()">Xuất CSV</button>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Thời gian</th>
+                                <th>Loại giao dịch</th>
+                                <th>Biển số</th>
+                                <th>Khu vực / Ô</th>
+                                <th>Biến động ví</th>
+                                <th>Số dư trước</th>
+                                <th>Số dư sau</th>
+                                <th>Ghi chú</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="historyTable">
+                            <tr>
+                                <td colspan="8">Đang tải dữ liệu...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div id="historyMsg" class="message"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="student-common.js"></script>
+
+    <script>
+        let historyRows = [];
+
+        if (guardStudent()) {
+            loadHistory();
+        }
+
+        async function loadHistory() {
+            try {
+                clearMsg("historyMsg");
+
+                const data = await apiGet(
+                    "/student/history?student_code=" + encodeURIComponent(currentUser.studentCode)
+                );
+
+                historyRows = data.history || [];
+
+                updateSummary();
+                renderHistoryTable();
+            } catch (error) {
+                showMsg("historyMsg", error.message, false);
+
+                document.getElementById("historyTable").innerHTML = `
+                    <tr>
+                        <td colspan="8">${error.message}</td>
+                    </tr>
+                `;
+            }
+        }
+
+        function updateSummary() {
+            const plusTotal = historyRows
+                .filter(function (item) {
+                    return Number(item.amount || 0) > 0;
+                })
+                .reduce(function (sum, item) {
+                    return sum + Number(item.amount || 0);
+                }, 0);
+
+            const minusTotal = historyRows
+                .filter(function (item) {
+                    return Number(item.amount || 0) < 0;
+                })
+                .reduce(function (sum, item) {
+                    return sum + Math.abs(Number(item.amount || 0));
+                }, 0);
+
+            const parkingCount = historyRows.filter(function (item) {
+                return item.action === "CHECKIN";
+            }).length;
+
+            document.getElementById("totalHistory").textContent = historyRows.length;
+            document.getElementById("plusTotal").textContent = money(plusTotal);
+            document.getElementById("minusTotal").textContent = money(minusTotal);
+            document.getElementById("parkingCount").textContent = parkingCount;
+        }
+
+        function renderHistoryTable() {
+            const table = document.getElementById("historyTable");
+
+            if (!historyRows || historyRows.length === 0) {
+                table.innerHTML = `
+                    <tr>
+                        <td colspan="8">Chưa có lịch sử giao dịch.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            table.innerHTML = historyRows.map(function (item) {
+                return `
+                    <tr>
+                        <td>${formatDateTime(item.created_at)}</td>
+                        <td>${actionLabel(item.action)}</td>
+                        <td><strong>${item.plate || "---"}</strong></td>
+                        <td>
+                            ${item.zone_name || "---"}
+                            ${item.slot_code ? " · " + item.slot_code : ""}
+                        </td>
+                        <td class="${moneyChangeClass(item.amount)}">
+                            ${moneyChange(item.amount)}
+                        </td>
+                        <td>
+                            ${item.action === "TOPUP" || item.action === "CHECKIN"
+                        ? money(item.balance_before)
+                        : "---"
+                    }
+                        </td>
+                        <td>
+                            ${item.action === "TOPUP" || item.action === "CHECKIN"
+                        ? "<strong>" + money(item.balance_after) + "</strong>"
+                        : "---"
+                    }
+                        </td>
+                        <td>${item.description || item.payment_method || "---"}</td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        function exportHistoryCSV() {
+            if (!historyRows || historyRows.length === 0) {
+                showMsg("historyMsg", "Chưa có dữ liệu để xuất CSV.", false);
+                return;
+            }
+
+            const headers = [
+                "Thời gian",
+                "Loại giao dịch",
+                "Biển số",
+                "Khu vực",
+                "Mã ô",
+                "Biến động ví",
+                "Số dư trước",
+                "Số dư sau",
+                "Ghi chú"
+            ];
+
+            const rows = historyRows.map(function (item) {
+                return [
+                    item.created_at || "",
+                    item.actionText || item.action || "",
+                    item.plate || "",
+                    item.zone_name || "",
+                    item.slot_code || "",
+                    item.amount || 0,
+                    item.balance_before || 0,
+                    item.balance_after || 0,
+                    item.description || item.payment_method || ""
+                ];
+            });
+
+            downloadCSV("lich-su-giao-dich-smart-utt.csv", headers, rows);
+        }
+    </script>
+</body>
+
+</html>
