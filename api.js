@@ -808,3 +808,12 @@ window.logout = logout;
 window.smartUttApiGet = apiGet;
 window.smartUttApiPost = apiPost;
 window.smartUttApiDelete = apiDelete;
+
+
+window.smartUttApiGet = window.apiGet || apiGet;
+window.smartUttApiPost = window.apiPost || apiPost;
+window.smartUttApiDelete = window.apiDelete || apiDelete;
+
+window.apiGetFromSupabaseReady = true;
+
+console.log("✅ Smart UTT Supabase API đã sẵn sàng");
