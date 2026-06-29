@@ -1,7 +1,7 @@
 
 
-const SUPABASE_URL = "PASTE_SUPABASE_URL_HERE";
-const SUPABASE_ANON_KEY = "PASTE_SUPABASE_ANON_KEY_HERE";
+const SUPABASE_URL = "https://znqtskbjbvayrqipamqa.supabase.co/rest/v1/";
+const SUPABASE_ANON_KEY = "sb_publishable_0MyC0DLeoH12tQ4g5mWulg_w3CqSOyJ";
 const SUPABASE_CDN = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
 
 let smartUttSupabaseClient = null;
