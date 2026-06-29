@@ -605,3 +605,43 @@ tr:hover td {
         min-width: 700px;
     }
 }
+/* =========================
+   SUPABASE OVERRIDE
+   Không gọi Flask /api khi chạy GitHub Pages
+========================= */
+
+apiGet = async function (path) {
+  if (window.smartUttApiGet) {
+    return await window.smartUttApiGet(path);
+  }
+
+  if (window.apiGet && window.apiGet !== apiGet) {
+    return await window.apiGet(path);
+  }
+
+  throw new Error("Supabase API chưa sẵn sàng. Kiểm tra file api.js.");
+};
+
+apiPost = async function (path, body = {}) {
+  if (window.smartUttApiPost) {
+    return await window.smartUttApiPost(path, body);
+  }
+
+  if (window.apiPost && window.apiPost !== apiPost) {
+    return await window.apiPost(path, body);
+  }
+
+  throw new Error("Supabase API chưa sẵn sàng. Kiểm tra file api.js.");
+};
+
+apiDelete = async function (path) {
+  if (window.smartUttApiDelete) {
+    return await window.smartUttApiDelete(path);
+  }
+
+  if (window.apiDelete && window.apiDelete !== apiDelete) {
+    return await window.apiDelete(path);
+  }
+
+  throw new Error("Supabase API chưa sẵn sàng. Kiểm tra file api.js.");
+};
