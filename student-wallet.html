@@ -52,7 +52,8 @@
                 <div class="title">
                     <h1>Ví sinh viên</h1>
                     <p>
-                        Số dư ví được dùng để thanh toán phí gửi xe. Khi nạp tiền, lịch sử sẽ ghi cộng tiền.
+                        Số dư ví được dùng để thanh toán phí gửi xe.
+                        Khi nạp tiền, lịch sử sẽ ghi cộng tiền.
                         Khi gửi xe, hệ thống sẽ tự trừ phí và ghi lịch sử trừ tiền.
                     </p>
                 </div>
@@ -73,13 +74,13 @@
                     <div class="card">
                         <div class="icon">➖</div>
                         <h3>Phí đã trừ</h3>
-                        <strong id="totalSpent">0đ</strong>
+                        <strong id="totalFee">0đ</strong>
                     </div>
 
                     <div class="card">
                         <div class="icon">📜</div>
                         <h3>Giao dịch ví</h3>
-                        <strong id="totalTransactions">0</strong>
+                        <strong id="transactionCount">0</strong>
                     </div>
                 </div>
 
@@ -92,7 +93,7 @@
                     </div>
 
                     <div class="form-grid">
-                        <select id="amount">
+                        <select id="topupAmount">
                             <option value="10000">10.000đ</option>
                             <option value="20000">20.000đ</option>
                             <option value="50000">50.000đ</option>
@@ -101,7 +102,7 @@
                             <option value="500000">500.000đ</option>
                         </select>
 
-                        <select id="method">
+                        <select id="paymentMethod">
                             <option value="Nạp tiền tại quầy">Nạp tiền tại quầy</option>
                             <option value="Chuyển khoản ngân hàng">Chuyển khoản ngân hàng</option>
                             <option value="Ví điện tử">Ví điện tử</option>
@@ -109,8 +110,23 @@
                     </div>
 
                     <div class="actions">
-                        <button class="btn" onclick="topup()">Xác nhận nạp tiền</button>
-                        <button class="btn btn-dark" onclick="loadWallet()">Tải lại dữ liệu</button>
+                        <button
+                            class="btn btn-green"
+                            type="button"
+                            data-student-button-fixed="1"
+                            onclick="topup()"
+                        >
+                            Xác nhận nạp tiền
+                        </button>
+
+                        <button
+                            class="btn btn-dark"
+                            type="button"
+                            data-student-button-fixed="1"
+                            onclick="reloadWallet()"
+                        >
+                            Tải lại dữ liệu
+                        </button>
                     </div>
 
                     <div id="walletMsg" class="message"></div>
@@ -142,62 +158,279 @@
         </main>
     </div>
 
-    <script src="student-common.js"></script>
+    <script src="api.js?v=10"></script>
 
     <script>
         let walletHistory = [];
 
-        if (guardStudent()) {
-            loadWallet();
+        function getCurrentStudent() {
+            const keys = ["smart_utt_current_user", "currentUser", "utt_current_user"];
+
+            for (const key of keys) {
+                const raw = localStorage.getItem(key);
+
+                if (!raw) continue;
+
+                try {
+                    const user = JSON.parse(raw);
+
+                    if (user && user.role === "student") {
+                        return user;
+                    }
+                } catch (error) {}
+            }
+
+            return null;
         }
 
-        async function loadWallet() {
+        function getStudentCode() {
+            const user = getCurrentStudent();
+
+            if (!user) return "";
+
+            return user.studentCode || user.student_code || user.username || "";
+        }
+
+        function money(value) {
+            return Number(value || 0).toLocaleString("vi-VN") + "đ";
+        }
+
+        function formatDateTime(value) {
+            if (!value) return "---";
+
+            const date = new Date(value);
+
+            if (Number.isNaN(date.getTime())) {
+                return value;
+            }
+
+            return date.toLocaleString("vi-VN");
+        }
+
+        function actionLabel(type) {
+            if (type === "TOPUP") return "Nạp tiền";
+            if (type === "CHECKIN") return "Gửi xe / Trừ phí";
+            if (type === "CHECKOUT") return "Lấy xe";
+            if (type === "ADMIN_CHECKIN") return "Admin ghi xe vào";
+            if (type === "ADMIN_CHECKOUT") return "Admin ghi xe ra";
+
+            return type || "---";
+        }
+
+        function moneyChange(amount) {
+            const number = Number(amount || 0);
+
+            if (number > 0) return "+" + money(number);
+            if (number < 0) return "-" + money(Math.abs(number));
+
+            return "0đ";
+        }
+
+        function showMsg(id, text, ok = true) {
+            const box = document.getElementById(id);
+
+            if (!box) return;
+
+            box.textContent = text || "";
+            box.className = "message " + (ok ? "success" : "error");
+
+            if (!text) {
+                box.className = "message";
+            }
+        }
+
+        function clearMsg(id) {
+            const box = document.getElementById(id);
+
+            if (!box) return;
+
+            box.textContent = "";
+            box.className = "message";
+        }
+
+        function logout() {
+            const ok = confirm("Bạn có chắc chắn muốn đăng xuất không?");
+
+            if (!ok) return;
+
+            localStorage.removeItem("smart_utt_current_user");
+            localStorage.removeItem("smart_utt_auth_token");
+            localStorage.removeItem("currentUser");
+            localStorage.removeItem("utt_current_user");
+            localStorage.removeItem("isLoggedIn");
+            localStorage.removeItem("userRole");
+
+            window.location.href = "login_new.html";
+        }
+
+        function updateUserInfo() {
+            const user = getCurrentStudent();
+
+            if (!user) return;
+
+            document.querySelectorAll(".current-user-name").forEach(function (element) {
+                element.textContent = user.fullName || user.full_name || user.username || "Sinh viên";
+            });
+
+            document.querySelectorAll(".current-user-code").forEach(function (element) {
+                element.textContent = user.studentCode || user.student_code || user.username || "---";
+            });
+        }
+
+        function ensureApiReady() {
+            return new Promise(function (resolve, reject) {
+                if (window.smartUttApiGet && window.smartUttApiPost) {
+                    resolve();
+                    return;
+                }
+
+                if (window.apiGet && window.apiPost) {
+                    resolve();
+                    return;
+                }
+
+                const existed = document.querySelector("script[data-wallet-api-loader]");
+
+                if (existed) {
+                    existed.addEventListener("load", resolve);
+                    existed.addEventListener("error", reject);
+                    return;
+                }
+
+                const script = document.createElement("script");
+                script.src = "api.js?v=" + Date.now();
+                script.setAttribute("data-wallet-api-loader", "true");
+
+                script.onload = function () {
+                    resolve();
+                };
+
+                script.onerror = function () {
+                    reject(new Error("Không tải được api.js."));
+                };
+
+                document.head.appendChild(script);
+            });
+        }
+
+        async function callGet(path) {
+            await ensureApiReady();
+
+            if (window.smartUttApiGet) {
+                return await window.smartUttApiGet(path);
+            }
+
+            if (window.apiGet) {
+                return await window.apiGet(path);
+            }
+
+            throw new Error("Không tìm thấy hàm apiGet trong api.js.");
+        }
+
+        async function callPost(path, body) {
+            await ensureApiReady();
+
+            if (window.smartUttApiPost) {
+                return await window.smartUttApiPost(path, body);
+            }
+
+            if (window.apiPost) {
+                return await window.apiPost(path, body);
+            }
+
+            throw new Error("Không tìm thấy hàm apiPost trong api.js.");
+        }
+
+        function normalizeTransaction(item) {
+            const amount = Number(item.amount || 0);
+            const balanceAfter = Number(item.balance_after || item.balanceAfter || 0);
+            const balanceBefore =
+                item.balance_before !== undefined
+                    ? Number(item.balance_before || 0)
+                    : balanceAfter - amount;
+
+            return {
+                id: item.id,
+                type: item.type || item.action || "",
+                actionText: item.actionText || actionLabel(item.type || item.action),
+                amount: amount,
+                balance_before: balanceBefore,
+                balance_after: balanceAfter,
+                description: item.description || item.payment_method || item.paymentMethod || "",
+                created_at: item.created_at || item.createdAt || "",
+                plate: item.plate || "",
+                zoneName: item.zoneName || item.zone_name || ""
+            };
+        }
+
+        async function reloadWallet() {
             try {
                 clearMsg("walletMsg");
 
-                const data = await apiGet(
-                    "/student/wallet?student_code=" + encodeURIComponent(currentUser.studentCode)
+                const user = getCurrentStudent();
+
+                if (!user) {
+                    window.location.href = "login_new.html";
+                    return;
+                }
+
+                if (user.role !== "student") {
+                    window.location.href = "admin-dashboard.html";
+                    return;
+                }
+
+                const data = await callGet(
+                    "/api/student/wallet?student_code=" + encodeURIComponent(getStudentCode())
                 );
 
-                const wallet = data.wallet || {};
-                walletHistory = wallet.history || [];
+                if (!data || data.success === false) {
+                    throw new Error(data?.message || "Không tải được dữ liệu ví.");
+                }
 
-                document.getElementById("balance").textContent = money(wallet.balance);
+                const wallet = data.wallet || {};
+                const balance = Number(data.balance || wallet.balance || 0);
+
+                walletHistory = (
+                    data.history ||
+                    data.transactions ||
+                    wallet.history ||
+                    []
+                ).map(normalizeTransaction);
 
                 const totalTopup = walletHistory
                     .filter(function (item) {
-                        return item.action === "TOPUP";
+                        return item.amount > 0 || item.type === "TOPUP";
                     })
                     .reduce(function (sum, item) {
-                        return sum + Number(item.amount || 0);
+                        return sum + Math.max(Number(item.amount || 0), 0);
                     }, 0);
 
-                const totalSpent = walletHistory
+                const totalFee = walletHistory
                     .filter(function (item) {
-                        return Number(item.amount || 0) < 0;
+                        return item.amount < 0 || item.type === "CHECKIN";
                     })
                     .reduce(function (sum, item) {
                         return sum + Math.abs(Number(item.amount || 0));
                     }, 0);
 
+                document.getElementById("balance").textContent = money(balance);
                 document.getElementById("totalTopup").textContent = money(totalTopup);
-                document.getElementById("totalSpent").textContent = money(totalSpent);
-                document.getElementById("totalTransactions").textContent = walletHistory.length;
+                document.getElementById("totalFee").textContent = money(totalFee);
+                document.getElementById("transactionCount").textContent = walletHistory.length;
 
                 renderWalletTable();
-            } catch (error) {
-                showMsg("walletMsg", error.message, false);
 
-                document.getElementById("walletTable").innerHTML = `
-                    <tr>
-                        <td colspan="6">${error.message}</td>
-                    </tr>
-                `;
+                showMsg("walletMsg", "Dữ liệu ví đã được đồng bộ.", true);
+            } catch (error) {
+                console.error(error);
+                showMsg("walletMsg", error.message || "Không tải được dữ liệu ví.", false);
             }
         }
 
         function renderWalletTable() {
             const table = document.getElementById("walletTable");
+
+            if (!table) return;
 
             if (!walletHistory || walletHistory.length === 0) {
                 table.innerHTML = `
@@ -208,45 +441,77 @@
                 return;
             }
 
-            table.innerHTML = walletHistory.map(function (item) {
-                return `
-                    <tr>
-                        <td>${formatDateTime(item.created_at)}</td>
-                        <td>${item.actionText || item.description || actionLabel(item.action)}</td>
-                        <td class="${moneyChangeClass(item.amount)}">
-                            ${moneyChange(item.amount)}
-                        </td>
-                        <td>${money(item.balance_before)}</td>
-                        <td><strong>${money(item.balance_after)}</strong></td>
-                        <td>${item.payment_method || item.description || "---"}</td>
-                    </tr>
-                `;
-            }).join("");
+            table.innerHTML = walletHistory
+                .map(function (item) {
+                    const amountClass = item.amount >= 0 ? "money-plus" : "money-minus";
+
+                    return `
+                        <tr>
+                            <td>${formatDateTime(item.created_at)}</td>
+                            <td>${item.actionText || actionLabel(item.type)}</td>
+                            <td class="${amountClass}"><strong>${moneyChange(item.amount)}</strong></td>
+                            <td>${money(item.balance_before)}</td>
+                            <td>${money(item.balance_after)}</td>
+                            <td>${item.description || item.plate || item.zoneName || "---"}</td>
+                        </tr>
+                    `;
+                })
+                .join("");
         }
 
         async function topup() {
-            const amount = Number(document.getElementById("amount").value);
-            const method = document.getElementById("method").value;
-
             try {
-                const data = await apiPost("/student/wallet/topup", {
-                    studentCode: currentUser.studentCode,
+                const amount = Number(document.getElementById("topupAmount").value || 0);
+                const method = document.getElementById("paymentMethod").value || "Nạp tiền";
+
+                if (!amount || amount < 10000) {
+                    showMsg("walletMsg", "Số tiền nạp tối thiểu là 10.000đ.", false);
+                    return;
+                }
+
+                const ok = confirm("Xác nhận nạp " + money(amount) + " vào ví?");
+
+                if (!ok) return;
+
+                showMsg("walletMsg", "Đang xử lý nạp tiền...", true);
+
+                const data = await callPost("/api/student/wallet/topup", {
                     amount: amount,
-                    method: method
+                    method: method,
+                    description: method
                 });
+
+                if (!data || data.success === false) {
+                    showMsg("walletMsg", data?.message || "Nạp tiền không thành công.", false);
+                    return;
+                }
 
                 showMsg("walletMsg", data.message || "Nạp tiền thành công.", true);
 
-                await loadWallet();
+                await reloadWallet();
             } catch (error) {
-                showMsg("walletMsg", error.message, false);
+                console.error(error);
+                showMsg("walletMsg", error.message || "Không nạp được tiền.", false);
             }
         }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const user = getCurrentStudent();
+
+            if (!user) {
+                window.location.href = "login_new.html";
+                return;
+            }
+
+            if (user.role !== "student") {
+                window.location.href = "admin-dashboard.html";
+                return;
+            }
+
+            updateUserInfo();
+            reloadWallet();
+        });
     </script>
-    <script src="api.js?v=5"></script>
-<script src="student-common.js?v=5"></script>
-<script src="navigation-fix.js?v=1"></script>
-<script src="student-buttons-fix.js?v=1"></script>
 </body>
 
 </html>
