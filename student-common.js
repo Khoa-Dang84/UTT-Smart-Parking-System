@@ -1,337 +1,141 @@
-const API_BASE = "/api";
-
-/* =========================
-   USER SESSION
-========================= */
-
-function getCurrentUser() {
-    const keys = [
-        "smart_utt_current_user",
-        "currentUser",
-        "utt_current_user"
-    ];
-
-    for (const key of keys) {
-        const raw = localStorage.getItem(key);
-
-        if (raw) {
-            try {
-                return normalizeUser(JSON.parse(raw));
-            } catch (error) { }
-        }
-    }
-
-    return null;
-}
+/* ============================================================
+   Smart UTT Parking - student-common.js
+   Bản sửa triệt để cho trang sinh viên
+   Không gọi Flask /api nữa, chuyển sang gọi api.js Supabase
+============================================================ */
 
 function normalizeUser(user) {
-    if (!user) {
-        return null;
-    }
+  if (!user) return null;
 
-    return {
-        id: user.id || "",
-        username: user.username || "",
-        fullName: user.fullName || user.full_name || user.name || "Sinh viên",
-        full_name: user.full_name || user.fullName || user.name || "Sinh viên",
-        role: user.role || "",
-        studentCode: user.studentCode || user.student_code || user.username || "",
-        student_code: user.student_code || user.studentCode || user.username || "",
-        balance: user.balance || 0
-    };
+  return {
+    id: user.id || "",
+    username: user.username || "",
+    fullName: user.fullName || user.full_name || user.name || "Sinh viên",
+    full_name: user.full_name || user.fullName || user.name || "Sinh viên",
+    role: user.role || "",
+    studentCode: user.studentCode || user.student_code || user.username || "",
+    student_code: user.student_code || user.studentCode || user.username || "",
+    balance: Number(user.balance || 0),
+    phone: user.phone || "",
+    department: user.department || ""
+  };
 }
 
-const currentUser = getCurrentUser();
+function getCurrentUser() {
+  const keys = ["smart_utt_current_user", "currentUser", "utt_current_user"];
+
+  for (const key of keys) {
+    const raw = localStorage.getItem(key);
+
+    if (!raw) continue;
+
+    try {
+      const user = normalizeUser(JSON.parse(raw));
+
+      if (user && user.role) {
+        return user;
+      }
+    } catch (error) {}
+  }
+
+  return null;
+}
+
+var currentUser = getCurrentUser();
 
 function guardStudent() {
-    if (!currentUser) {
-        alert("Bạn cần đăng nhập trước!");
-        window.location.href = "../login_new.html";
-        return false;
-    }
+  if (!currentUser) {
+    alert("Bạn cần đăng nhập trước!");
+    window.location.href = "login_new.html";
+    return false;
+  }
 
-    if (currentUser.role !== "student") {
-        alert("Trang này chỉ dành cho sinh viên.");
-        window.location.href = "../admin-dashboard.html";
-        return false;
-    }
+  if (currentUser.role !== "student") {
+    alert("Trang này chỉ dành cho sinh viên.");
+    window.location.href = "admin-dashboard.html";
+    return false;
+  }
 
-    fillCurrentUserInfo();
-
-    return true;
+  fillCurrentUserInfo();
+  return true;
 }
 
 function fillCurrentUserInfo() {
-    if (!currentUser) {
-        return;
-    }
+  if (!currentUser) return;
 
-    document.querySelectorAll(".current-user-name").forEach(function (element) {
-        element.textContent = currentUser.fullName || currentUser.username || "Sinh viên";
-    });
+  document.querySelectorAll(".current-user-name").forEach(function (element) {
+    element.textContent = currentUser.fullName || currentUser.username || "Sinh viên";
+  });
 
-    document.querySelectorAll(".current-user-code").forEach(function (element) {
-        element.textContent = currentUser.studentCode || currentUser.username || "";
-    });
+  document.querySelectorAll(".current-user-code").forEach(function (element) {
+    element.textContent = currentUser.studentCode || currentUser.username || "";
+  });
 
-    document.querySelectorAll(".current-user-role").forEach(function (element) {
-        element.textContent = "Sinh viên";
-    });
+  document.querySelectorAll(".current-user-role").forEach(function (element) {
+    element.textContent = "Sinh viên";
+  });
+
+  document.querySelectorAll(".current-user-balance").forEach(function (element) {
+    element.textContent = money(currentUser.balance || 0);
+  });
 }
 
 function logout() {
-    const confirmLogout = confirm("Bạn có chắc chắn muốn đăng xuất không?");
+  const confirmLogout = confirm("Bạn có chắc chắn muốn đăng xuất không?");
 
-    if (!confirmLogout) {
-        return;
-    }
+  if (!confirmLogout) return;
 
-    localStorage.removeItem("smart_utt_current_user");
-    localStorage.removeItem("smart_utt_auth_token");
-    localStorage.removeItem("currentUser");
-    localStorage.removeItem("utt_current_user");
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("userRole");
+  localStorage.removeItem("smart_utt_current_user");
+  localStorage.removeItem("smart_utt_auth_token");
+  localStorage.removeItem("currentUser");
+  localStorage.removeItem("utt_current_user");
+  localStorage.removeItem("isLoggedIn");
+  localStorage.removeItem("userRole");
 
-    window.location.href = "../login_new.html";
+  window.location.href = "login_new.html";
 }
 
-
-/* =========================
-   API HELPERS
-========================= */
-
-async function parseJsonResponse(response, path) {
-    const text = await response.text();
-
-    let data;
-
-    try {
-        data = JSON.parse(text);
-    } catch (error) {
-        throw new Error(
-            "Backend trả về HTML hoặc dữ liệu không phải JSON. Kiểm tra route: " + path
-        );
-    }
-
-    if (!response.ok || data.success === false) {
-        throw new Error(data.message || "Yêu cầu không thành công");
-    }
-
-    return data;
-}
-
-async function apiGet(path) {
-    const response = await fetch(API_BASE + path);
-
-    return parseJsonResponse(response, API_BASE + path);
-}
-
-async function apiPost(path, body = {}) {
-    const response = await fetch(API_BASE + path, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-    });
-
-    return parseJsonResponse(response, API_BASE + path);
-}
-
-async function apiDelete(path) {
-    const response = await fetch(API_BASE + path, {
-        method: "DELETE"
-    });
-
-    return parseJsonResponse(response, API_BASE + path);
-}
-
-
-/* =========================
-   FORMAT HELPERS
-========================= */
-
-function money(value) {
-    return Number(value || 0).toLocaleString("vi-VN") + "đ";
-}
-
-function moneyChange(value) {
-    const number = Number(value || 0);
-
-    if (number > 0) {
-        return "+" + money(number);
-    }
-
-    if (number < 0) {
-        return "-" + money(Math.abs(number));
-    }
-
-    return "0đ";
-}
-
-function moneyChangeClass(value) {
-    const number = Number(value || 0);
-
-    if (number > 0) {
-        return "money-plus";
-    }
-
-    if (number < 0) {
-        return "money-minus";
-    }
-
-    return "money-zero";
-}
-
-function formatDateTime(value) {
-    if (!value) {
-        return "---";
-    }
-
-    return value;
-}
-
-function showMsg(id, text, ok = true) {
-    const box = document.getElementById(id);
-
-    if (!box) {
-        return;
-    }
-
-    box.textContent = text;
-    box.className = "message " + (ok ? "success" : "error");
-}
-
-function clearMsg(id) {
-    const box = document.getElementById(id);
-
-    if (!box) {
-        return;
-    }
-
-    box.textContent = "";
-    box.className = "message";
-}
-
-function actionLabel(action) {
-    if (action === "TOPUP") {
-        return '<span class="badge b-money-plus">Nạp tiền</span>';
-    }
-
-    if (action === "CHECKIN") {
-        return '<span class="badge b-money-minus">Gửi xe / Trừ phí</span>';
-    }
-
-    if (action === "CHECKOUT") {
-        return '<span class="badge b-out">Lấy xe</span>';
-    }
-
-    if (action === "ADMIN_CHECKIN") {
-        return '<span class="badge b-in">Admin ghi xe vào</span>';
-    }
-
-    if (action === "ADMIN_CHECKOUT") {
-        return '<span class="badge b-out">Admin ghi xe ra</span>';
-    }
-
-    return '<span class="badge b-warning">' + (action || "---") + '</span>';
-}
-
-function statusText(status) {
-    if (status === "empty") {
-        return "Còn trống";
-    }
-
-    if (status === "used") {
-        return "Đang có xe máy";
-    }
-
-    if (status === "car") {
-        return "Đang có ô tô";
-    }
-
-    if (status === "warning") {
-        return "Cảnh báo";
-    }
-
-    return status || "---";
-}
-
-function statusBadge(status) {
-    let className = "badge-empty";
-
-    if (status === "used") {
-        className = "badge-used";
-    }
-
-    if (status === "car") {
-        className = "badge-car";
-    }
-
-    if (status === "warning") {
-        className = "badge-warning";
-    }
-
-    return '<span class="badge ' + className + '">' + statusText(status) + '</span>';
-}
-
-
-/* =========================
-   CSV EXPORT
-========================= */
-
-function downloadCSV(filename, headers, rows) {
-    const csvContent = [headers, ...rows]
-        .map(function (row) {
-            return row.map(function (value) {
-                return '"' + String(value || "").replace(/"/g, '""') + '"';
-            }).join(",");
-        })
-        .join("\n");
-
-    const blob = new Blob(["\uFEFF" + csvContent], {
-        type: "text/csv;charset=utf-8;"
-    });
-
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-
-    link.href = url;
-    link.download = filename;
-    link.click();
-
-    URL.revokeObjectURL(url);
-}
 /* ============================================================
-   FIX STUDENT COMMON - KHÔNG GỌI FLASK /api NỮA
-   Dán đoạn này vào cuối file student-common.js
+   Load api.js nếu trang chưa load
 ============================================================ */
 
 function loadSmartUttApi() {
-  return new Promise((resolve, reject) => {
+  return new Promise(function (resolve, reject) {
     if (window.smartUttApiGet && window.smartUttApiPost && window.smartUttApiDelete) {
       resolve();
       return;
     }
 
-    const oldScript = document.querySelector('script[data-smart-utt-api-fix]');
-    if (oldScript) {
-      oldScript.addEventListener("load", resolve);
-      oldScript.addEventListener("error", reject);
+    const existedScript = document.querySelector('script[data-smart-utt-api-fix]');
+
+    if (existedScript) {
+      existedScript.addEventListener("load", resolve);
+      existedScript.addEventListener("error", reject);
       return;
     }
 
     const script = document.createElement("script");
     script.src = "api.js?v=" + Date.now();
     script.setAttribute("data-smart-utt-api-fix", "true");
-    script.onload = resolve;
-    script.onerror = () => reject(new Error("Không tải được api.js"));
+
+    script.onload = function () {
+      resolve();
+    };
+
+    script.onerror = function () {
+      reject(new Error("Không tải được file api.js."));
+    };
+
     document.head.appendChild(script);
   });
 }
 
-apiGet = async function (path) {
+/* ============================================================
+   Ghi đè apiGet/apiPost/apiDelete cũ
+   Mục tiêu: không gọi /api/student/... nữa
+============================================================ */
+
+async function apiGet(path) {
   await loadSmartUttApi();
 
   if (window.smartUttApiGet) {
@@ -342,10 +146,10 @@ apiGet = async function (path) {
     return await window.apiGet(path);
   }
 
-  throw new Error("Supabase API chưa sẵn sàng. Kiểm tra api.js.");
-};
+  throw new Error("Supabase API chưa sẵn sàng. Kiểm tra file api.js.");
+}
 
-apiPost = async function (path, body = {}) {
+async function apiPost(path, body = {}) {
   await loadSmartUttApi();
 
   if (window.smartUttApiPost) {
@@ -356,10 +160,10 @@ apiPost = async function (path, body = {}) {
     return await window.apiPost(path, body);
   }
 
-  throw new Error("Supabase API chưa sẵn sàng. Kiểm tra api.js.");
-};
+  throw new Error("Supabase API chưa sẵn sàng. Kiểm tra file api.js.");
+}
 
-apiDelete = async function (path) {
+async function apiDelete(path) {
   await loadSmartUttApi();
 
   if (window.smartUttApiDelete) {
@@ -370,7 +174,190 @@ apiDelete = async function (path) {
     return await window.apiDelete(path);
   }
 
-  throw new Error("Supabase API chưa sẵn sàng. Kiểm tra api.js.");
-};
+  throw new Error("Supabase API chưa sẵn sàng. Kiểm tra file api.js.");
+}
 
-console.log("✅ student-common.js đã chuyển sang dùng Supabase API");
+/* ============================================================
+   Helper hiển thị tiền, ngày, trạng thái
+============================================================ */
+
+function money(value) {
+  return Number(value || 0).toLocaleString("vi-VN") + "đ";
+}
+
+function moneyVND(value) {
+  return money(value);
+}
+
+function moneyChange(value) {
+  const number = Number(value || 0);
+
+  if (number > 0) {
+    return "+" + money(number);
+  }
+
+  if (number < 0) {
+    return "-" + money(Math.abs(number));
+  }
+
+  return "0đ";
+}
+
+function moneyChangeClass(value) {
+  const number = Number(value || 0);
+
+  if (number > 0) {
+    return "money-plus";
+  }
+
+  if (number < 0) {
+    return "money-minus";
+  }
+
+  return "money-zero";
+}
+
+function formatDateTime(value) {
+  if (!value) return "---";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleString("vi-VN");
+}
+
+function actionLabel(action) {
+  if (action === "TOPUP") return "Nạp tiền";
+  if (action === "CHECKIN") return "Gửi xe / Trừ phí";
+  if (action === "CHECKOUT") return "Lấy xe";
+  if (action === "ADMIN_CHECKIN") return "Admin ghi xe vào";
+  if (action === "ADMIN_CHECKOUT") return "Admin ghi xe ra";
+
+  return action || "---";
+}
+
+function statusText(status) {
+  if (status === "empty") return "Còn trống";
+  if (status === "used") return "Đang có xe máy";
+  if (status === "car") return "Đang có ô tô";
+  if (status === "warning") return "Cảnh báo";
+  if (status === "parking") return "Đang gửi";
+  if (status === "outside") return "Chưa gửi";
+
+  return status || "---";
+}
+
+function statusBadge(status) {
+  let className = "badge-empty";
+
+  if (status === "used" || status === "parking") {
+    className = "badge-used";
+  }
+
+  if (status === "car") {
+    className = "badge-car";
+  }
+
+  if (status === "warning") {
+    className = "badge-warning";
+  }
+
+  return '<span class="badge ' + className + '">' + statusText(status) + "</span>";
+}
+
+/* ============================================================
+   Message box
+============================================================ */
+
+function showMsg(id, text, ok = true) {
+  const box = document.getElementById(id);
+
+  if (!box) return;
+
+  box.textContent = text || "";
+  box.className = "message " + (ok ? "success" : "error");
+
+  if (!text) {
+    box.className = "message";
+  }
+}
+
+function clearMsg(id) {
+  const box = document.getElementById(id);
+
+  if (!box) return;
+
+  box.textContent = "";
+  box.className = "message";
+}
+
+/* ============================================================
+   CSV export
+============================================================ */
+
+function downloadCSV(filename, headers, rows) {
+  const csvContent = [headers, ...rows]
+    .map(function (row) {
+      return row
+        .map(function (value) {
+          return '"' + String(value || "").replace(/"/g, '""') + '"';
+        })
+        .join(",");
+    })
+    .join("\n");
+
+  const blob = new Blob(["\uFEFF" + csvContent], {
+    type: "text/csv;charset=utf-8;"
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = filename;
+  link.click();
+
+  URL.revokeObjectURL(url);
+}
+
+/* ============================================================
+   Điều hướng nhanh
+============================================================ */
+
+function goToPage(page) {
+  window.location.href = page;
+}
+
+/* ============================================================
+   Xuất hàm ra window để các file HTML dùng được
+============================================================ */
+
+window.normalizeUser = normalizeUser;
+window.getCurrentUser = getCurrentUser;
+window.currentUser = currentUser;
+window.guardStudent = guardStudent;
+window.fillCurrentUserInfo = fillCurrentUserInfo;
+window.logout = logout;
+
+window.apiGet = apiGet;
+window.apiPost = apiPost;
+window.apiDelete = apiDelete;
+
+window.money = money;
+window.moneyVND = moneyVND;
+window.moneyChange = moneyChange;
+window.moneyChangeClass = moneyChangeClass;
+window.formatDateTime = formatDateTime;
+window.actionLabel = actionLabel;
+window.statusText = statusText;
+window.statusBadge = statusBadge;
+
+window.showMsg = showMsg;
+window.clearMsg = clearMsg;
+window.downloadCSV = downloadCSV;
+window.goToPage = goToPage;
+
+console.log("✅ student-common.js đã dùng Supabase API, không gọi Flask /api nữa");
