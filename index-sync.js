@@ -1,6 +1,7 @@
 /* ============================================================
    Smart UTT Parking - Index Sync
    Đồng bộ trang chủ với đăng nhập + dữ liệu Supabase
+   Khối trạng thái bãi xe được đưa xuống cuối trang chủ
 ============================================================ */
 
 (function () {
@@ -180,11 +181,6 @@
                 color: white;
             }
 
-            .index-sync-btn.dark {
-                background: #1e293b;
-                color: white;
-            }
-
             .index-sync-btn.red {
                 background: #ef4444;
                 color: white;
@@ -192,8 +188,9 @@
 
             .index-data-panel {
                 max-width: 1180px;
-                margin: 24px auto 42px;
+                margin: 46px auto 42px;
                 padding: 0 24px;
+                clear: both;
             }
 
             .index-data-card {
@@ -301,6 +298,7 @@
                 height: 100%;
                 background: linear-gradient(90deg, #22c55e, #0d6efd);
                 border-radius: 999px;
+                transition: width 0.3s ease;
             }
 
             @media (max-width: 900px) {
@@ -377,7 +375,7 @@
         const roleText = getRoleText(user.role);
         const name = getUserName(user);
         const code = getUserCode(user);
-        const firstLetter = roleText.charAt(0).toUpperCase();
+        const firstLetter = user.role === "admin" ? "A" : "S";
 
         bar.innerHTML = `
             <div class="index-auth-box">
@@ -447,14 +445,22 @@
         panel.id = "indexDataPanel";
         panel.className = "index-data-panel";
 
-        const authBar = document.getElementById("indexAuthBar");
+        const footer = document.querySelector("footer, .footer");
 
-        if (authBar) {
-            authBar.insertAdjacentElement("afterend", panel);
-        } else {
-            document.body.appendChild(panel);
+        if (footer && footer.parentNode) {
+            footer.insertAdjacentElement("beforebegin", panel);
+            return panel;
         }
 
+        const scripts = document.querySelectorAll("script");
+        const firstScript = scripts.length ? scripts[0] : null;
+
+        if (firstScript && firstScript.parentNode === document.body) {
+            document.body.insertBefore(panel, firstScript);
+            return panel;
+        }
+
+        document.body.appendChild(panel);
         return panel;
     }
 
@@ -550,6 +556,92 @@
         };
     }
 
+    function updateHomeDensity(stats) {
+        const total = Number(stats.totalSlots || 0);
+        const used = Number(stats.usedSlots || 0);
+        const density = total === 0 ? 0 : Math.round((used / total) * 100);
+        const densityText = density + "%";
+
+        setTextByIds(
+            [
+                "densityText",
+                "usageDensity",
+                "homeDensity",
+                "usagePercent",
+                "densityPercent",
+                "indexDensity"
+            ],
+            densityText
+        );
+
+        const possibleBars = document.querySelectorAll(`
+            #densityBar,
+            #usageBar,
+            #homeDensityBar,
+            #densityProgress,
+            .density-bar,
+            .usage-bar,
+            .usage-progress,
+            .progress-fill,
+            .progress-bar span,
+            .progress span
+        `);
+
+        possibleBars.forEach(function (bar) {
+            if (!bar.closest("#indexDataPanel")) {
+                bar.style.width = density + "%";
+            }
+        });
+
+        const allElements = Array.from(document.querySelectorAll("body *"));
+
+        allElements.forEach(function (element) {
+            const text = String(element.textContent || "").trim();
+
+            if (text === "0%" || text === "0 %" || text.match(/^\d+%$/)) {
+                const parentText = String(element.parentElement?.textContent || "").toLowerCase();
+
+                if (
+                    parentText.includes("mật độ") ||
+                    parentText.includes("sử dụng")
+                ) {
+                    element.textContent = densityText;
+                }
+            }
+        });
+
+        allElements.forEach(function (element) {
+            const text = String(element.textContent || "").toLowerCase();
+
+            if (!text.includes("mật độ sử dụng")) return;
+
+            const container =
+                element.closest(".card") ||
+                element.closest(".stat-card") ||
+                element.closest(".panel") ||
+                element.closest("section") ||
+                element.parentElement;
+
+            if (!container) return;
+
+            const percentElements = Array.from(container.querySelectorAll("strong, span, b, div, p"));
+
+            percentElements.forEach(function (item) {
+                const itemText = String(item.textContent || "").trim();
+
+                if (itemText.match(/^\d+%$/)) {
+                    item.textContent = densityText;
+                }
+            });
+
+            const bars = container.querySelectorAll(".progress-fill, .progress-bar span, .progress span, .usage-bar, .density-bar");
+
+            bars.forEach(function (bar) {
+                bar.style.width = density + "%";
+            });
+        });
+    }
+
     async function loadIndexData() {
         const panel = ensureDataPanel();
 
@@ -575,6 +667,8 @@
             setTextByIds(["emptySlots", "statEmpty", "homeEmptySlots", "indexEmptySlots"], stats.emptySlots);
             setTextByIds(["usedSlots", "statUsed", "occupiedSlots", "homeUsedSlots", "indexUsedSlots"], stats.usedSlots);
             setTextByIds(["warningSlots", "statWarning", "violationSlots", "homeWarningSlots"], stats.warningSlots);
+
+            updateHomeDensity(stats);
 
             panel.innerHTML = `
                 <div class="index-data-card">
@@ -644,6 +738,8 @@
                     </div>
                 </div>
             `;
+
+            updateHomeDensity(stats);
         } catch (error) {
             console.error(error);
 
