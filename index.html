@@ -14,195 +14,276 @@
             font-family: "Segoe UI", Arial, sans-serif;
         }
 
-        :root {
-            --blue: #0d6efd;
-            --blue-dark: #173b83;
-            --blue-deep: #0f2f6f;
-            --blue-soft: #e8f1ff;
-            --bg: #eef4ff;
-            --text: #1f2937;
-            --muted: #64748b;
-            --green: #22c55e;
-            --orange: #f59e0b;
-            --red: #ef4444;
-            --white: #ffffff;
-        }
-
         body {
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
+            background: #eef4ff;
+            color: #1f2937;
         }
 
         .page {
             width: 100%;
-            overflow-x: hidden;
+            min-height: 100vh;
         }
 
-        .header {
-            background: var(--white);
-            border-bottom: 1px solid #dbeafe;
-            box-shadow: 0 6px 22px rgba(15, 23, 42, 0.08);
-        }
-
-        .header-inner {
-            width: min(1180px, calc(100% - 36px));
+        .navbar {
+            max-width: 1440px;
             margin: 0 auto;
-            min-height: 78px;
+            padding: 26px 46px 0;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 24px;
         }
 
-        .brand {
+        .nav-brand {
             display: flex;
             align-items: center;
-            gap: 13px;
-            min-width: 240px;
-        }
-
-        .brand-logo {
-            width: 52px;
-            height: 52px;
-            border-radius: 17px;
-            background: linear-gradient(135deg, var(--blue), var(--blue-dark));
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 27px;
+            gap: 12px;
+            color: #1e3a8a;
             font-weight: 900;
-            box-shadow: 0 10px 24px rgba(13, 110, 253, 0.24);
-        }
-
-        .brand-text h1 {
-            color: var(--blue-dark);
             font-size: 22px;
-            line-height: 1.2;
         }
 
-        .brand-text p {
-            color: var(--muted);
-            font-size: 13px;
-            margin-top: 3px;
-        }
-
-        .nav {
+        .brand-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 15px;
+            background: #0d6efd;
+            color: white;
             display: flex;
             align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-        }
-
-        .nav a {
-            color: #334155;
-            text-decoration: none;
-            font-size: 15px;
-            font-weight: 800;
-            transition: 0.2s;
-        }
-
-        .nav a:hover {
-            color: var(--blue);
-        }
-
-        .login-link {
-            background: var(--blue);
-            color: white !important;
-            padding: 11px 18px;
-            border-radius: 999px;
-            box-shadow: 0 8px 20px rgba(13, 110, 253, 0.22);
-        }
-
-        .hero {
-            width: min(1180px, calc(100% - 36px));
-            margin: 38px auto 0;
-            display: grid;
-            grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
-            gap: 30px;
-            align-items: stretch;
-        }
-
-        .hero-left,
-        .hero-right {
-            min-width: 0;
-        }
-
-        .hero-card {
-            background: linear-gradient(135deg, var(--blue-dark), var(--blue));
-            color: white;
-            border-radius: 34px;
-            padding: 42px;
-            min-height: 470px;
-            display: flex;
-            flex-direction: column;
             justify-content: center;
-            box-shadow: 0 22px 45px rgba(15, 23, 42, 0.18);
-        }
-
-        .label {
-            width: fit-content;
-            background: rgba(255, 255, 255, 0.16);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            border-radius: 999px;
-            padding: 9px 15px;
-            font-size: 14px;
             font-weight: 900;
-            margin-bottom: 22px;
+            font-size: 25px;
+            box-shadow: 0 10px 24px rgba(13, 110, 253, 0.22);
         }
 
-        .hero-card h2 {
-            font-size: clamp(36px, 5vw, 58px);
-            line-height: 1.08;
-            margin-bottom: 18px;
-            letter-spacing: -1.4px;
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
         }
 
-        .hero-card p {
-            color: #eaf2ff;
-            font-size: 17px;
-            line-height: 1.7;
-            max-width: 680px;
+        .nav-links a,
+        .nav-links button {
+            border: none;
+            background: transparent;
+            color: #1e3a8a;
+            text-decoration: none;
+            font-weight: 900;
+            font-size: 15px;
+            cursor: pointer;
         }
 
-        .hero-note {
-            margin-top: 28px;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
+        .nav-links a:hover,
+        .nav-links button:hover {
+            color: #0d6efd;
+        }
+
+        .login-btn {
+            background: #0d6efd !important;
+            color: white !important;
+            padding: 12px 20px;
+            border-radius: 999px;
+            box-shadow: 0 10px 20px rgba(13, 110, 253, 0.22);
+        }
+
+        .logout-btn {
+            background: #ef4444 !important;
+            color: white !important;
+            padding: 12px 20px;
+            border-radius: 999px;
+        }
+
+        .auth-mini {
+            max-width: 1440px;
+            margin: 18px auto 0;
+            padding: 0 46px;
+            display: none;
+        }
+
+        .auth-mini.show {
+            display: block;
+        }
+
+        .auth-box {
+            background: white;
+            border: 1px solid #dbeafe;
+            border-radius: 20px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        .auth-info {
+            display: flex;
+            align-items: center;
             gap: 14px;
         }
 
-        .hero-note-item {
-            background: rgba(255, 255, 255, 0.14);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            border-radius: 20px;
-            padding: 16px;
+        .auth-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 15px;
+            background: #0d6efd;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 20px;
         }
 
-        .hero-note-item strong {
+        .auth-info strong {
             display: block;
-            font-size: 22px;
-            margin-bottom: 6px;
+            color: #1e3a8a;
+            font-size: 17px;
         }
 
-        .hero-note-item span {
-            color: #dbeafe;
-            font-size: 13px;
-            line-height: 1.45;
+        .auth-info span {
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 700;
         }
 
-        .status-board {
-            background: white;
+        .auth-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .auth-actions a,
+        .auth-actions button {
+            border: none;
+            text-decoration: none;
+            padding: 11px 17px;
+            border-radius: 999px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .auth-actions a {
+            background: #0d6efd;
+            color: white;
+        }
+
+        .auth-actions button {
+            background: #ef4444;
+            color: white;
+        }
+
+        .hero-wrap {
+            max-width: 1440px;
+            margin: 34px auto 0;
+            padding: 0 46px;
+            display: grid;
+            grid-template-columns: 1.1fr 0.95fr;
+            gap: 40px;
+            align-items: stretch;
+        }
+
+        .hero-left {
+            background: linear-gradient(135deg, #173b83, #0d6efd);
+            color: white;
             border-radius: 34px;
-            padding: 28px;
-            min-height: 470px;
-            border: 1px solid #dbeafe;
-            box-shadow: 0 18px 42px rgba(15, 23, 42, 0.10);
+            padding: 48px;
+            min-height: 650px;
             display: flex;
             flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 22px 55px rgba(15, 23, 42, 0.18);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .hero-left::before,
+        .hero-left::after {
+            content: "";
+            position: absolute;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .hero-left::before {
+            top: -80px;
+            right: -80px;
+        }
+
+        .hero-left::after {
+            bottom: -100px;
+            left: -90px;
+        }
+
+        .hero-badge {
+            width: fit-content;
+            border: 1px solid rgba(255, 255, 255, 0.32);
+            background: rgba(255, 255, 255, 0.12);
+            padding: 12px 22px;
+            border-radius: 999px;
+            font-weight: 900;
+            margin-bottom: 34px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-left h1 {
+            font-size: 58px;
+            line-height: 1.18;
+            max-width: 720px;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-left p {
+            font-size: 20px;
+            line-height: 1.8;
+            max-width: 720px;
+            color: #e0ecff;
+            font-weight: 600;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 18px;
+            margin-top: 36px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-card {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 20px;
+            padding: 22px;
+        }
+
+        .step-card strong {
+            font-size: 28px;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        .step-card span {
+            line-height: 1.65;
+            color: #e0ecff;
+            font-weight: 600;
+        }
+
+        .status-panel {
+            background: white;
+            border-radius: 34px;
+            padding: 34px;
+            box-shadow: 0 22px 55px rgba(15, 23, 42, 0.12);
+            border: 1px solid #dbeafe;
         }
 
         .status-head {
@@ -210,350 +291,278 @@
             justify-content: space-between;
             align-items: flex-start;
             gap: 16px;
+            margin-bottom: 28px;
         }
 
-        .status-head h3 {
-            color: var(--blue-dark);
-            font-size: 25px;
-            margin-bottom: 6px;
+        .status-head h2 {
+            color: #1e3a8a;
+            font-size: 32px;
+            margin-bottom: 8px;
         }
 
         .status-head p {
-            color: var(--muted);
-            line-height: 1.5;
-            font-size: 14px;
+            color: #64748b;
+            line-height: 1.6;
+            font-weight: 600;
         }
 
-        .live-badge {
-            flex-shrink: 0;
+        .sync-badge {
             background: #dcfce7;
             color: #166534;
-            padding: 8px 13px;
+            padding: 11px 18px;
             border-radius: 999px;
             font-weight: 900;
-            font-size: 13px;
+            white-space: nowrap;
         }
 
-        .stats {
+        .status-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+            margin-bottom: 24px;
         }
 
-        .stat {
+        .status-card {
             background: #f8fbff;
             border: 1px solid #dbeafe;
             border-radius: 22px;
-            padding: 18px;
+            padding: 24px;
+            min-height: 155px;
         }
 
-        .stat-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 15px;
-            background: var(--blue-soft);
-            color: var(--blue);
+        .status-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: #e8f1ff;
+            color: #0d6efd;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
-            margin-bottom: 12px;
+            font-size: 25px;
+            margin-bottom: 20px;
         }
 
-        .stat span {
-            color: var(--muted);
-            font-size: 13px;
-            font-weight: 800;
+        .status-card h3 {
+            color: #64748b;
+            font-size: 15px;
+            margin-bottom: 14px;
         }
 
-        .stat strong {
-            display: block;
-            color: var(--blue-dark);
-            font-size: 31px;
-            margin-top: 5px;
+        .status-card strong {
+            color: #1e3a8a;
+            font-size: 34px;
+            font-weight: 950;
         }
 
-        .progress-box {
+        .density-box,
+        .fee-box {
             background: #f8fbff;
             border: 1px solid #dbeafe;
             border-radius: 22px;
-            padding: 18px;
+            padding: 24px;
+            margin-top: 20px;
         }
 
-        .progress-title {
+        .density-title,
+        .fee-title {
             display: flex;
             justify-content: space-between;
-            gap: 10px;
-            color: var(--blue-dark);
-            font-weight: 900;
-            margin-bottom: 12px;
+            align-items: center;
+            gap: 16px;
+            color: #1e3a8a;
+            font-size: 20px;
+            font-weight: 950;
+            margin-bottom: 14px;
         }
 
-        .progress {
-            height: 12px;
-            background: #e5e7eb;
+        .density-bar {
+            height: 14px;
+            background: #e2e8f0;
             border-radius: 999px;
             overflow: hidden;
         }
 
-        .progress span {
-            display: block;
+        .density-fill {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, var(--blue), #60a5fa);
+            background: linear-gradient(90deg, #22c55e, #0d6efd);
+            border-radius: 999px;
+            transition: width 0.35s ease;
+        }
+
+        .fee-title strong {
+            color: #1e3a8a;
+            white-space: nowrap;
+        }
+
+        .fee-box p {
+            color: #64748b;
+            line-height: 1.6;
+            font-weight: 600;
         }
 
         .section {
-            width: min(1180px, calc(100% - 36px));
-            margin: 34px auto 0;
+            max-width: 1440px;
+            margin: 50px auto 0;
+            padding: 0 46px;
         }
 
         .section-title {
-            text-align: center;
             margin-bottom: 24px;
         }
 
         .section-title h2 {
-            color: var(--blue-dark);
-            font-size: clamp(28px, 4vw, 40px);
-            margin-bottom: 10px;
-        }
-
-        .section-title p {
-            color: var(--muted);
-            line-height: 1.6;
-            max-width: 760px;
-            margin: 0 auto;
-        }
-
-        .features {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-        }
-
-        .feature-card {
-            background: white;
-            border: 1px solid #dbeafe;
-            border-radius: 26px;
-            padding: 24px;
-            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
-            min-height: 220px;
-        }
-
-        .feature-icon {
-            width: 54px;
-            height: 54px;
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--blue-soft);
-            color: var(--blue);
-            font-size: 26px;
-            margin-bottom: 16px;
-        }
-
-        .feature-card h3 {
-            color: var(--blue-dark);
-            font-size: 20px;
-            margin-bottom: 10px;
-        }
-
-        .feature-card p {
-            color: var(--muted);
-            line-height: 1.6;
-            font-size: 15px;
-        }
-
-        .workflow {
-            background: white;
-            border: 1px solid #dbeafe;
-            border-radius: 30px;
-            padding: 28px;
-            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
-        }
-
-        .workflow-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 14px;
-        }
-
-        .step {
-            background: #f8fbff;
-            border: 1px solid #dbeafe;
-            border-radius: 22px;
-            padding: 18px;
-            min-height: 150px;
-        }
-
-        .step-number {
-            width: 38px;
-            height: 38px;
-            border-radius: 14px;
-            background: var(--blue);
-            color: white;
-            font-weight: 900;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 12px;
-        }
-
-        .step h3 {
-            color: var(--blue-dark);
-            font-size: 17px;
+            color: #1e3a8a;
+            font-size: 34px;
             margin-bottom: 8px;
         }
 
-        .step p {
-            color: var(--muted);
-            font-size: 14px;
-            line-height: 1.55;
+        .section-title p {
+            color: #64748b;
+            font-size: 17px;
+            line-height: 1.7;
+            font-weight: 600;
+            max-width: 980px;
         }
 
-        .zones {
+        .feature-grid,
+        .process-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 16px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 22px;
         }
 
+        .feature-card,
+        .process-card,
         .zone-card {
             background: white;
             border: 1px solid #dbeafe;
             border-radius: 24px;
-            padding: 20px;
-            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
+            padding: 26px;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
         }
 
+        .feature-card h3,
+        .process-card h3,
         .zone-card h3 {
-            color: var(--blue-dark);
-            margin-bottom: 8px;
-            font-size: 18px;
+            color: #1e3a8a;
+            font-size: 22px;
+            margin-bottom: 12px;
         }
 
+        .feature-card p,
+        .process-card p,
         .zone-card p {
-            color: var(--muted);
-            font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 14px;
+            color: #64748b;
+            line-height: 1.7;
+            font-weight: 600;
         }
 
-        .zone-mini {
+        .process-number {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: #0d6efd;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            margin-bottom: 16px;
+        }
+
+        .zone-section {
+            margin-bottom: 56px;
+        }
+
+        .zone-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 18px;
         }
 
-        .zone-mini div {
-            background: #f8fbff;
-            border-radius: 16px;
-            padding: 11px;
+        .zone-card {
+            min-height: 210px;
         }
 
-        .zone-mini span {
+        .zone-progress {
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+            margin: 14px 0;
+        }
+
+        .zone-progress span {
             display: block;
-            color: var(--muted);
-            font-size: 12px;
-            margin-bottom: 4px;
-        }
-
-        .zone-mini strong {
-            color: var(--blue-dark);
-            font-size: 21px;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #22c55e, #0d6efd);
+            border-radius: 999px;
+            transition: width 0.35s ease;
         }
 
         .footer {
-            margin-top: 46px;
-            background: var(--blue-deep);
+            background: #173b83;
             color: white;
-            padding: 28px 0;
+            text-align: center;
+            padding: 28px;
+            margin-top: 60px;
+            font-weight: 700;
         }
 
-        .footer-inner {
-            width: min(1180px, calc(100% - 36px));
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .footer strong {
-            font-size: 18px;
-        }
-
-        .footer span {
-            color: #bfdbfe;
-            font-size: 14px;
-        }
-
-        @media (max-width: 1100px) {
-            .hero {
+        @media (max-width: 1180px) {
+            .hero-wrap {
                 grid-template-columns: 1fr;
             }
 
-            .hero-card,
-            .status-board {
+            .hero-left {
                 min-height: auto;
             }
 
-            .features {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .workflow-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .zones {
+            .zone-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
 
-        @media (max-width: 760px) {
-            .header-inner {
-                padding: 16px 0;
+        @media (max-width: 850px) {
+            .navbar,
+            .hero-wrap,
+            .section,
+            .auth-mini {
+                padding-left: 22px;
+                padding-right: 22px;
+            }
+
+            .navbar {
                 flex-direction: column;
                 align-items: flex-start;
             }
 
-            .nav {
-                width: 100%;
-                justify-content: flex-start;
-                gap: 14px;
+            .hero-left h1 {
+                font-size: 40px;
             }
 
-            .hero {
-                margin-top: 22px;
+            .hero-left {
+                padding: 34px;
             }
 
-            .hero-card {
-                padding: 28px;
-                border-radius: 26px;
-            }
-
-            .hero-note {
+            .hero-steps,
+            .feature-grid,
+            .process-grid,
+            .status-grid,
+            .zone-grid {
                 grid-template-columns: 1fr;
             }
 
-            .status-board {
-                border-radius: 26px;
-                padding: 22px;
-            }
-
-            .stats,
-            .features,
-            .workflow-grid,
-            .zones {
-                grid-template-columns: 1fr;
-            }
-
-            .footer-inner {
+            .status-head {
                 flex-direction: column;
+            }
+
+            .auth-box {
                 align-items: flex-start;
+                flex-direction: column;
             }
         }
     </style>
@@ -561,359 +570,524 @@
 
 <body>
     <div class="page">
-        <header class="header">
-            <div class="header-inner">
-                <div class="brand">
-                    <div class="brand-logo">🅿️</div>
-                    <div class="brand-text">
-                        <h1>UTT Smart Parking System</h1>
-                        <p>Hệ thống quản lý bãi xe sinh viên</p>
-                    </div>
-                </div>
-
-                <nav class="nav">
-                    <a href="#tong-quan">Tổng quan</a>
-                    <a href="#tinh-nang">Tính năng</a>
-                    <a href="#quy-trinh">Quy trình</a>
-                    <a href="#khu-xe">Khu gửi xe</a>
-                    <a class="login-link" href="login_new.html">Đăng nhập</a>
-                </nav>
+        <nav class="navbar">
+            <div class="nav-brand">
+                <div class="brand-icon">P</div>
+                <span>UTT Smart Parking System</span>
             </div>
-        </header>
 
-        <main>
-            <section class="hero" id="tong-quan">
-                <div class="hero-left">
-                    <div class="hero-card">
-                        <div class="label">UTT Smart Parking System</div>
+            <div class="nav-links">
+                <a href="#overview">Tổng quan</a>
+                <a href="#features">Tính năng</a>
+                <a href="#process">Quy trình</a>
+                <a href="#zones">Khu gửi xe</a>
+                <a id="loginLink" class="login-btn" href="login_new.html">Đăng nhập</a>
+            </div>
+        </nav>
 
-                        <h2>Quản lý gửi xe sinh viên rõ ràng, nhanh và đồng bộ</h2>
-
-                        <p>
-                            Hệ thống hỗ trợ sinh viên khai báo phương tiện, nạp tiền vào ví,
-                            gửi xe, lấy xe và theo dõi lịch sử giao dịch. Admin có thể quan sát
-                            tình trạng bãi xe, quản lý từng ô gửi xe và tra cứu thông tin phương tiện
-                            theo thời gian thực.
-                        </p>
-
-                        <div class="hero-note">
-                            <div class="hero-note-item">
-                                <strong>01</strong>
-                                <span>Sinh viên khai báo xe và sử dụng ví để thanh toán phí gửi xe.</span>
-                            </div>
-
-                            <div class="hero-note-item">
-                                <strong>02</strong>
-                                <span>Admin theo dõi trạng thái từng khu, từng ô và từng phương tiện.</span>
-                            </div>
-
-                            <div class="hero-note-item">
-                                <strong>03</strong>
-                                <span>Lịch sử nạp tiền, gửi xe, lấy xe được lưu trên backend SQLite.</span>
-                            </div>
-                        </div>
+        <section id="authMini" class="auth-mini">
+            <div class="auth-box">
+                <div class="auth-info">
+                    <div id="authAvatar" class="auth-avatar">S</div>
+                    <div>
+                        <strong id="authName">Đang đăng nhập</strong>
+                        <span id="authRole">Sinh viên</span>
                     </div>
                 </div>
 
-                <div class="hero-right">
-                    <div class="status-board">
-                        <div class="status-head">
-                            <div>
-                                <h3>Trạng thái bãi xe</h3>
-                                <p>Dữ liệu được lấy từ backend khi hệ thống đang chạy.</p>
-                            </div>
+                <div class="auth-actions">
+                    <a id="goDashboardBtn" href="student-home.html">Vào hệ thống</a>
+                    <button type="button" onclick="logoutHome()">Đăng xuất</button>
+                </div>
+            </div>
+        </section>
 
-                            <div class="live-badge">Đồng bộ</div>
-                        </div>
+        <main id="overview" class="hero-wrap">
+            <section class="hero-left">
+                <div class="hero-badge">UTT Smart Parking System</div>
 
-                        <div class="stats">
-                            <div class="stat">
-                                <div class="stat-icon">🅿️</div>
-                                <span>Tổng ô</span>
-                                <strong id="totalSlots">0</strong>
-                            </div>
+                <h1>Quản lý gửi xe sinh viên rõ ràng, nhanh và đồng bộ</h1>
 
-                            <div class="stat">
-                                <div class="stat-icon">✅</div>
-                                <span>Còn trống</span>
-                                <strong id="emptySlots">0</strong>
-                            </div>
+                <p>
+                    Hệ thống hỗ trợ sinh viên khai báo phương tiện, nạp tiền vào ví,
+                    gửi xe, lấy xe và theo dõi lịch sử giao dịch. Admin có thể quan sát
+                    tình trạng bãi xe, quản lý từng ô gửi xe và tra cứu thông tin phương tiện
+                    theo thời gian thực.
+                </p>
 
-                            <div class="stat">
-                                <div class="stat-icon">🚗</div>
-                                <span>Đang có xe</span>
-                                <strong id="usedSlots">0</strong>
-                            </div>
+                <div class="hero-steps">
+                    <div class="step-card">
+                        <strong>01</strong>
+                        <span>Sinh viên khai báo xe và sử dụng ví để thanh toán phí gửi xe.</span>
+                    </div>
 
-                            <div class="stat">
-                                <div class="stat-icon">🚨</div>
-                                <span>Cảnh báo</span>
-                                <strong id="warningSlots">0</strong>
-                            </div>
-                        </div>
+                    <div class="step-card">
+                        <strong>02</strong>
+                        <span>Admin theo dõi trạng thái từng khu, từng ô và từng phương tiện.</span>
+                    </div>
 
-                        <div class="progress-box">
-                            <div class="progress-title">
-                                <span>Mật độ sử dụng</span>
-                                <span id="densityText">0%</span>
-                            </div>
-
-                            <div class="progress">
-                                <span id="densityBar"></span>
-                            </div>
-                        </div>
-
-                        <div class="progress-box">
-                            <div class="progress-title">
-                                <span>Phí gửi xe</span>
-                                <span>3.000đ - 5.000đ/lượt</span>
-                            </div>
-
-                            <p style="color:#64748b; line-height:1.6; font-size:14px;">
-                                Xe máy / xe điện: 3.000đ/lượt. Ô tô: 5.000đ/lượt.
-                                Phí được trừ trực tiếp từ ví sinh viên khi gửi xe.
-                            </p>
-                        </div>
+                    <div class="step-card">
+                        <strong>03</strong>
+                        <span>Lịch sử nạp tiền, gửi xe, lấy xe được lưu trên Supabase.</span>
                     </div>
                 </div>
             </section>
 
-            <section class="section" id="tinh-nang">
-                <div class="section-title">
-                    <h2>Tính năng chính</h2>
+            <section class="status-panel">
+                <div class="status-head">
+                    <div>
+                        <h2>Trạng thái bãi xe</h2>
+                        <p>Dữ liệu được đồng bộ khi hệ thống đang chạy.</p>
+                    </div>
+
+                    <div id="syncBadge" class="sync-badge">Đang tải</div>
+                </div>
+
+                <div class="status-grid">
+                    <div class="status-card">
+                        <div class="status-icon">🅿️</div>
+                        <h3>Tổng ô</h3>
+                        <strong id="homeTotalSlots">0</strong>
+                    </div>
+
+                    <div class="status-card">
+                        <div class="status-icon">✅</div>
+                        <h3>Còn trống</h3>
+                        <strong id="homeEmptySlots">0</strong>
+                    </div>
+
+                    <div class="status-card">
+                        <div class="status-icon">🚗</div>
+                        <h3>Đang có xe</h3>
+                        <strong id="homeUsedSlots">0</strong>
+                    </div>
+
+                    <div class="status-card">
+                        <div class="status-icon">🚨</div>
+                        <h3>Cảnh báo</h3>
+                        <strong id="homeWarningSlots">0</strong>
+                    </div>
+                </div>
+
+                <div class="density-box">
+                    <div class="density-title">
+                        <span>Mật độ sử dụng</span>
+                        <strong id="homeDensityText">0%</strong>
+                    </div>
+
+                    <div class="density-bar">
+                        <div id="homeDensityBar" class="density-fill"></div>
+                    </div>
+                </div>
+
+                <div class="fee-box">
+                    <div class="fee-title">
+                        <span>Phí gửi xe</span>
+                        <strong>3.000đ - 5.000đ/lượt</strong>
+                    </div>
+
                     <p>
-                        Các chức năng được thiết kế theo luồng sử dụng thực tế giữa sinh viên và admin,
-                        tránh mỗi trang tự giữ dữ liệu riêng.
+                        Xe máy / xe điện: 3.000đ/lượt. Ô tô: 5.000đ/lượt.
+                        Phí được trừ trực tiếp từ ví sinh viên khi gửi xe.
                     </p>
-                </div>
-
-                <div class="features">
-                    <div class="feature-card">
-                        <div class="feature-icon">🚗</div>
-                        <h3>Xe của tôi</h3>
-                        <p>
-                            Sinh viên khai báo biển số, loại xe, hãng xe và màu xe. Trang bãi xe chỉ
-                            cho chọn các xe đã khai báo để dữ liệu chính xác hơn.
-                        </p>
-                    </div>
-
-                    <div class="feature-card">
-                        <div class="feature-icon">💰</div>
-                        <h3>Ví sinh viên</h3>
-                        <p>
-                            Sinh viên nạp tiền vào ví, kiểm tra số dư và xem biến động cộng/trừ tiền
-                            sau mỗi giao dịch.
-                        </p>
-                    </div>
-
-                    <div class="feature-card">
-                        <div class="feature-icon">🅿️</div>
-                        <h3>Gửi xe / lấy xe</h3>
-                        <p>
-                            Khi gửi xe, hệ thống tự chọn ô trống phù hợp theo khu và trừ phí từ ví.
-                            Khi lấy xe, trạng thái ô được cập nhật lại.
-                        </p>
-                    </div>
-
-                    <div class="feature-card">
-                        <div class="feature-icon">📊</div>
-                        <h3>Admin Dashboard</h3>
-                        <p>
-                            Admin theo dõi tổng ô, chỗ trống, xe đang gửi, doanh thu và tìm kiếm theo
-                            biển số, mã sinh viên hoặc mã ô.
-                        </p>
-                    </div>
-                </div>
-            </section>
-
-            <section class="section" id="quy-trinh">
-                <div class="section-title">
-                    <h2>Quy trình sử dụng</h2>
-                    <p>
-                        Luồng sinh viên được sắp xếp theo đúng thứ tự: đăng nhập, khai báo xe,
-                        nạp tiền, gửi xe và xem lịch sử.
-                    </p>
-                </div>
-
-                <div class="workflow">
-                    <div class="workflow-grid">
-                        <div class="step">
-                            <div class="step-number">1</div>
-                            <h3>Đăng nhập</h3>
-                            <p>Sinh viên hoặc admin đăng nhập bằng tài khoản được phân quyền.</p>
-                        </div>
-
-                        <div class="step">
-                            <div class="step-number">2</div>
-                            <h3>Khai báo xe</h3>
-                            <p>Sinh viên thêm phương tiện cá nhân vào danh sách xe của mình.</p>
-                        </div>
-
-                        <div class="step">
-                            <div class="step-number">3</div>
-                            <h3>Nạp tiền</h3>
-                            <p>Sinh viên nạp tiền vào ví để sử dụng khi gửi xe.</p>
-                        </div>
-
-                        <div class="step">
-                            <div class="step-number">4</div>
-                            <h3>Gửi xe</h3>
-                            <p>Chọn xe đã khai báo, chọn khu phù hợp và xác nhận gửi xe.</p>
-                        </div>
-
-                        <div class="step">
-                            <div class="step-number">5</div>
-                            <h3>Theo dõi</h3>
-                            <p>Lịch sử nạp tiền, gửi xe, lấy xe được lưu và đồng bộ với admin.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="section" id="khu-xe">
-                <div class="section-title">
-                    <h2>Khu gửi xe</h2>
-                    <p>
-                        Các khu gửi xe được đọc từ backend. Nếu backend chưa chạy, trang vẫn hiển thị
-                        khung giao diện và tự cập nhật khi tải lại.
-                    </p>
-                </div>
-
-                <div class="zones" id="zoneList">
-                    <div class="zone-card">
-                        <h3>Đang tải dữ liệu</h3>
-                        <p>Hệ thống đang đọc danh sách khu gửi xe.</p>
-                    </div>
                 </div>
             </section>
         </main>
 
-        <footer class="footer">
-            <div class="footer-inner">
-                <div>
-                    <strong>UTT Smart Parking System</strong>
-                    <br />
-                    <span>Hệ thống quản lý bãi xe sinh viên kết nối backend SQLite</span>
+        <section id="features" class="section">
+            <div class="section-title">
+                <h2>Tính năng chính</h2>
+                <p>
+                    Các chức năng được thiết kế theo luồng sử dụng thực tế giữa sinh viên và admin,
+                    giúp dữ liệu gửi xe được quản lý tập trung và dễ theo dõi.
+                </p>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>🚗 Xe của tôi</h3>
+                    <p>
+                        Sinh viên khai báo biển số, loại xe, hãng xe và màu xe.
+                        Trang bãi xe chỉ cho chọn các xe đã khai báo để dữ liệu chính xác hơn.
+                    </p>
                 </div>
 
-                <span>UTT Student Parking Management</span>
+                <div class="feature-card">
+                    <h3>💰 Ví sinh viên</h3>
+                    <p>
+                        Sinh viên nạp tiền vào ví, kiểm tra số dư và xem biến động cộng/trừ
+                        tiền sau mỗi giao dịch.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>🅿️ Gửi xe / lấy xe</h3>
+                    <p>
+                        Khi gửi xe, hệ thống chọn ô trống phù hợp theo khu và trừ phí từ ví.
+                        Khi lấy xe, trạng thái ô được cập nhật lại.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>📊 Admin Dashboard</h3>
+                    <p>
+                        Admin theo dõi tổng ô, chỗ trống, xe đang gửi, doanh thu và tra cứu
+                        theo biển số, mã sinh viên hoặc mã ô.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>📍 Parking Slot</h3>
+                    <p>
+                        Hiển thị trạng thái từng ô gửi xe, bao gồm ô trống, ô đang có xe,
+                        ô tô và các trường hợp cảnh báo.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>🗺️ Bản đồ bãi xe</h3>
+                    <p>
+                        Mô phỏng bố cục bãi gửi xe phía sau trường với các khu gửi xe,
+                        đường A, đường B và cổng ra vào.
+                    </p>
+                </div>
             </div>
+        </section>
+
+        <section id="process" class="section">
+            <div class="section-title">
+                <h2>Quy trình sử dụng</h2>
+                <p>
+                    Luồng sinh viên được sắp xếp theo đúng thứ tự: đăng nhập,
+                    khai báo xe, nạp tiền, gửi xe và xem lịch sử.
+                </p>
+            </div>
+
+            <div class="process-grid">
+                <div class="process-card">
+                    <div class="process-number">1</div>
+                    <h3>Đăng nhập</h3>
+                    <p>Sinh viên hoặc admin đăng nhập bằng tài khoản được phân quyền.</p>
+                </div>
+
+                <div class="process-card">
+                    <div class="process-number">2</div>
+                    <h3>Khai báo xe</h3>
+                    <p>Sinh viên thêm phương tiện cá nhân vào danh sách xe của mình.</p>
+                </div>
+
+                <div class="process-card">
+                    <div class="process-number">3</div>
+                    <h3>Nạp tiền</h3>
+                    <p>Sinh viên nạp tiền vào ví để sử dụng khi gửi xe.</p>
+                </div>
+
+                <div class="process-card">
+                    <div class="process-number">4</div>
+                    <h3>Gửi xe</h3>
+                    <p>Chọn xe đã khai báo, chọn khu phù hợp và xác nhận gửi xe.</p>
+                </div>
+
+                <div class="process-card">
+                    <div class="process-number">5</div>
+                    <h3>Theo dõi</h3>
+                    <p>Lịch sử nạp tiền, gửi xe, lấy xe được lưu và đồng bộ với admin.</p>
+                </div>
+
+                <div class="process-card">
+                    <div class="process-number">6</div>
+                    <h3>Quản trị</h3>
+                    <p>Admin kiểm tra xe đang gửi, cảnh báo và trạng thái từng khu.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="zones" class="section zone-section">
+            <div class="section-title">
+                <h2>Khu gửi xe</h2>
+                <p>
+                    Các khu gửi xe được đọc từ Supabase. Phần này được đặt ở cuối trang chủ
+                    để không phá bố cục giới thiệu ban đầu.
+                </p>
+            </div>
+
+            <div id="zoneGrid" class="zone-grid">
+                <div class="zone-card">
+                    <h3>Đang tải dữ liệu</h3>
+                    <p>Hệ thống đang đọc danh sách khu gửi xe.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            UTT Smart Parking System · Hệ thống quản lý bãi xe sinh viên đồng bộ dữ liệu
         </footer>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script>
-        loadHomeData();
+        const SUPABASE_URL = "https://znqtskbjbvayrqipamqa.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_0MyC0DLeoH12tQ4g5mWulg_w3CqSOyJ";
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        async function loadHomeData() {
-            try {
-                const statsResponse = await fetch("/api/stats");
-                const stats = await statsResponse.json();
+        let homeSlots = [];
+        let homeZones = [];
 
-                document.getElementById("totalSlots").textContent = stats.totalSlots || 0;
-                document.getElementById("emptySlots").textContent = stats.emptySlots || 0;
-                document.getElementById("usedSlots").textContent = stats.usedSlots || 0;
-                document.getElementById("warningSlots").textContent = stats.warningSlots || 0;
+        document.addEventListener("DOMContentLoaded", function () {
+            renderLoginState();
+            loadHomeParkingData();
+        });
 
-                const total = Number(stats.totalSlots || 0);
-                const used = Number(stats.usedSlots || 0);
-                const density = total === 0 ? 0 : Math.round((used / total) * 100);
+        function getCurrentUserHome() {
+            const keys = [
+                "smart_utt_current_user",
+                "currentUser",
+                "utt_current_user"
+            ];
 
-                document.getElementById("densityText").textContent = density + "%";
-                document.getElementById("densityBar").style.width = Math.max(density, 3) + "%";
+            for (const key of keys) {
+                const raw = localStorage.getItem(key);
 
-                const zonesResponse = await fetch("/api/parking-lots");
-                const zones = await zonesResponse.json();
+                if (!raw) continue;
 
-                renderZones(Array.isArray(zones) ? zones : []);
-            } catch (error) {
-                renderZones([]);
+                try {
+                    const user = JSON.parse(raw);
+
+                    if (user && user.role) {
+                        return user;
+                    }
+                } catch (error) {}
             }
+
+            return null;
         }
 
-        function renderZones(zones) {
-            const zoneList = document.getElementById("zoneList");
+        function getUserName(user) {
+            return (
+                user.fullName ||
+                user.full_name ||
+                user.name ||
+                user.username ||
+                "Người dùng"
+            );
+        }
 
-            if (!zones || zones.length === 0) {
-                zoneList.innerHTML = `
-                    <div class="zone-card">
-                        <h3>Khu gửi xe 1</h3>
-                        <p>Xe máy sinh viên</p>
-                        <div class="zone-mini">
-                            <div><span>Còn trống</span><strong>--</strong></div>
-                            <div><span>Đang có xe</span><strong>--</strong></div>
-                        </div>
-                    </div>
+        function getUserCode(user) {
+            return (
+                user.studentCode ||
+                user.student_code ||
+                user.username ||
+                ""
+            );
+        }
 
-                    <div class="zone-card">
-                        <h3>Khu gửi xe 2</h3>
-                        <p>Xe máy sinh viên</p>
-                        <div class="zone-mini">
-                            <div><span>Còn trống</span><strong>--</strong></div>
-                            <div><span>Đang có xe</span><strong>--</strong></div>
-                        </div>
-                    </div>
+        function getRoleText(role) {
+            if (role === "admin") return "Quản trị viên";
+            if (role === "student") return "Sinh viên";
+            return role || "Người dùng";
+        }
 
-                    <div class="zone-card">
-                        <h3>Khu gửi xe 3</h3>
-                        <p>Xe máy sinh viên</p>
-                        <div class="zone-mini">
-                            <div><span>Còn trống</span><strong>--</strong></div>
-                            <div><span>Đang có xe</span><strong>--</strong></div>
-                        </div>
-                    </div>
+        function getHomeByRole(role) {
+            if (role === "admin") return "admin-dashboard.html";
+            if (role === "student") return "student-home.html";
+            return "login_new.html";
+        }
 
-                    <div class="zone-card">
-                        <h3>Khu giáo viên</h3>
-                        <p>Xe máy giáo viên</p>
-                        <div class="zone-mini">
-                            <div><span>Còn trống</span><strong>--</strong></div>
-                            <div><span>Đang có xe</span><strong>--</strong></div>
-                        </div>
-                    </div>
+        function renderLoginState() {
+            const user = getCurrentUserHome();
+            const loginLink = document.getElementById("loginLink");
+            const authMini = document.getElementById("authMini");
 
-                    <div class="zone-card">
-                        <h3>Khu ô tô</h3>
-                        <p>Ô tô</p>
-                        <div class="zone-mini">
-                            <div><span>Còn trống</span><strong>--</strong></div>
-                            <div><span>Đang có xe</span><strong>--</strong></div>
-                        </div>
-                    </div>
-                `;
-
+            if (!user) {
+                loginLink.href = "login_new.html";
+                loginLink.textContent = "Đăng nhập";
+                authMini.classList.remove("show");
                 return;
             }
 
-            zoneList.innerHTML = zones.map(function (zone) {
-                const name = zone.zoneName || zone.zone_name || zone.name || "Khu gửi xe";
-                const type = zone.vehicleType || zone.vehicle_type || "Phương tiện";
-                const empty = zone.emptySlots || zone.availableSlots || 0;
-                const used = zone.usedSlots || zone.occupiedSlots || 0;
+            const homePage = getHomeByRole(user.role);
+            const roleText = getRoleText(user.role);
+            const name = getUserName(user);
+            const code = getUserCode(user);
+
+            loginLink.href = homePage;
+            loginLink.textContent = user.role === "admin" ? "Vào Admin" : "Vào cổng sinh viên";
+
+            document.getElementById("authAvatar").textContent = user.role === "admin" ? "A" : "S";
+            document.getElementById("authName").textContent = "Đang đăng nhập: " + name;
+            document.getElementById("authRole").textContent = roleText + (code ? " · " + code : "");
+            document.getElementById("goDashboardBtn").href = homePage;
+            document.getElementById("goDashboardBtn").textContent =
+                user.role === "admin" ? "Vào trang quản trị" : "Vào cổng sinh viên";
+
+            authMini.classList.add("show");
+        }
+
+        function logoutHome() {
+            const ok = confirm("Bạn có chắc chắn muốn đăng xuất không?");
+
+            if (!ok) return;
+
+            localStorage.removeItem("smart_utt_current_user");
+            localStorage.removeItem("smart_utt_auth_token");
+            localStorage.removeItem("currentUser");
+            localStorage.removeItem("utt_current_user");
+            localStorage.removeItem("isLoggedIn");
+            localStorage.removeItem("userRole");
+
+            window.location.href = "index.html";
+        }
+
+        function zoneDisplayName(zoneKey) {
+            const map = {
+                student1: "Khu gửi xe 1",
+                bike2: "Khu gửi xe 2",
+                bike3: "Khu gửi xe 3",
+                teacher: "Khu giáo viên/KTX",
+                car: "Khu ô tô"
+            };
+
+            return map[zoneKey] || zoneKey || "---";
+        }
+
+        function normalizeSlot(slot) {
+            const zone = slot.parking_zones || {};
+
+            return {
+                id: slot.id,
+                slotCode: slot.slot_code,
+                zoneKey: slot.zone_id,
+                zoneName: zone.name || zoneDisplayName(slot.zone_id),
+                zoneVehicleType: zone.vehicle_type || "",
+                status: slot.status || "empty",
+                plate: slot.plate || ""
+            };
+        }
+
+        async function loadHomeParkingData() {
+            try {
+                const badge = document.getElementById("syncBadge");
+                badge.textContent = "Đang tải";
+
+                const { data: slots, error: slotError } = await supabaseClient
+                    .from("parking_slots")
+                    .select(`
+                        id,
+                        slot_code,
+                        zone_id,
+                        status,
+                        plate,
+                        parking_zones(name, vehicle_type)
+                    `)
+                    .order("slot_code", { ascending: true });
+
+                if (slotError) {
+                    throw new Error(slotError.message);
+                }
+
+                const { data: zones, error: zoneError } = await supabaseClient
+                    .from("parking_zones")
+                    .select("*")
+                    .order("name", { ascending: true });
+
+                if (zoneError) {
+                    throw new Error(zoneError.message);
+                }
+
+                homeSlots = (slots || []).map(normalizeSlot);
+                homeZones = zones || [];
+
+                renderHomeStats();
+                renderHomeZones();
+
+                badge.textContent = "Đồng bộ";
+                badge.style.background = "#dcfce7";
+                badge.style.color = "#166534";
+            } catch (error) {
+                console.error(error);
+
+                const badge = document.getElementById("syncBadge");
+                badge.textContent = "Lỗi dữ liệu";
+                badge.style.background = "#fee2e2";
+                badge.style.color = "#991b1b";
+            }
+        }
+
+        function renderHomeStats() {
+            const total = homeSlots.length;
+
+            const empty = homeSlots.filter(function (slot) {
+                return slot.status === "empty";
+            }).length;
+
+            const warning = homeSlots.filter(function (slot) {
+                return slot.status === "warning";
+            }).length;
+
+            const used = total - empty;
+            const density = total === 0 ? 0 : Math.round((used / total) * 100);
+
+            document.getElementById("homeTotalSlots").textContent = total;
+            document.getElementById("homeEmptySlots").textContent = empty;
+            document.getElementById("homeUsedSlots").textContent = used;
+            document.getElementById("homeWarningSlots").textContent = warning;
+
+            document.getElementById("homeDensityText").textContent = density + "%";
+            document.getElementById("homeDensityBar").style.width = density + "%";
+        }
+
+        function renderHomeZones() {
+            const zoneGrid = document.getElementById("zoneGrid");
+
+            if (!homeZones.length) {
+                zoneGrid.innerHTML = `
+                    <div class="zone-card">
+                        <h3>Chưa có dữ liệu khu gửi xe</h3>
+                        <p>Kiểm tra lại bảng parking_zones trong Supabase.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            zoneGrid.innerHTML = homeZones.map(function (zone) {
+                const zoneSlots = homeSlots.filter(function (slot) {
+                    return slot.zoneKey === zone.id;
+                });
+
+                const total = zoneSlots.length || Number(zone.total_slots || 0);
+
+                const empty = zoneSlots.filter(function (slot) {
+                    return slot.status === "empty";
+                }).length;
+
+                const warning = zoneSlots.filter(function (slot) {
+                    return slot.status === "warning";
+                }).length;
+
+                const used = total - empty;
+                const density = total === 0 ? 0 : Math.round((used / total) * 100);
+
+                const vehicleType = zone.vehicle_type || "Xe máy";
 
                 return `
                     <div class="zone-card">
-                        <h3>${type === "Ô tô" ? "🚗" : "🏍️"} ${name}</h3>
-                        <p>${type}</p>
+                        <h3>${vehicleType === "Ô tô" ? "🚗" : "🏍️"} ${zone.name || zoneDisplayName(zone.id)}</h3>
+                        <p>Tổng ô: <strong>${total}</strong></p>
+                        <p>Còn trống: <strong>${empty}</strong></p>
+                        <p>Đang có xe: <strong>${used}</strong></p>
+                        <p>Cảnh báo: <strong>${warning}</strong></p>
 
-                        <div class="zone-mini">
-                            <div>
-                                <span>Còn trống</span>
-                                <strong>${empty}</strong>
-                            </div>
-
-                            <div>
-                                <span>Đang có xe</span>
-                                <strong>${used}</strong>
-                            </div>
+                        <div class="zone-progress">
+                            <span style="width:${Math.max(density, 3)}%;"></span>
                         </div>
+
+                        <p>Mật độ: <strong>${density}%</strong></p>
                     </div>
                 `;
             }).join("");
         }
     </script>
-    <script src="navigation-fix.js?v=1"></script>
-    <script src="api.js?v=50"></script>
-<script src="index-sync.js?v=1"></script>
 </body>
 
 </html>
